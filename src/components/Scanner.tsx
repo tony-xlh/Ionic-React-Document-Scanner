@@ -5,13 +5,24 @@ import { WebTwain } from "mobile-web-capture/dist/types/WebTwain";
 interface props {
   license:string,
   onScannerListLoaded?: (list:string[]) => void;
+  onScanned?: (success:boolean) => void;
   width?: string|number;
   height?: string|number;
+  scanOptions?: ScanOptions;
+  remoteScan?: boolean;
+  scan?: boolean;
 }
 
+export interface ScanOptions {
+  selectedIndex:number;
+}
+
+let DWObject:WebTwain | undefined;
+
 const Scanner: React.FC<props> = (props: props) => {
-  let DWObject:WebTwain | null = null;
+
   let container = useRef<HTMLDivElement>(null);
+
   const CreateDWT = () => {
     return new Promise(function (resolve, reject) {
       let success = function (obj:WebTwain) {
@@ -55,7 +66,7 @@ const Scanner: React.FC<props> = (props: props) => {
           DWObject.Viewer.show();
           resolve(true);
         }
-        
+        resolve(false);
       };
 
       let error = function (err:any) {
@@ -69,21 +80,45 @@ const Scanner: React.FC<props> = (props: props) => {
         error
       );
     })
-
   }
+
+  const loadScanners = () => {
+    if (props.onScannerListLoaded && DWObject) {
+      let scanners = [];
+      if (DWObject) {
+        let count = DWObject.SourceCount;
+        for (let i = 0; i < count; i++) {
+            scanners.push(DWObject.GetSourceNameItems(i));
+        }
+      }
+      props.onScannerListLoaded(scanners);
+    }
+  }
+
   useEffect(() => {
     const init = async () =>{
       await CreateDWT();
+      loadScanners();
     }
     init();
   }, []);
 
-
   useEffect(() => {
-    if (props.onScannerListLoaded) {
-      props.onScannerListLoaded(["1","2"]);
+    if (props.scan == true) {
+      if (DWObject) {
+        DWObject.SelectSource(
+          function() {
+            if (DWObject) {
+              DWObject.OpenSource();
+              DWObject.AcquireImage();
+            }
+          },
+          function() {
+              console.log("SelectSource failed!");
+          });
+      }
     }
-  }, []);
+  }, [props.scan]);
 
   return (
     <div ref={container}></div>
