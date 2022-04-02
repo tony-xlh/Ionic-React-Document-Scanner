@@ -33,7 +33,7 @@ const Home: React.FC = () => {
       </IonHeader>
       <IonContent style={{ height: "100%" }}>
         <Scanner scan={scan} width={"100%"} height={"100%"} 
-         license="t0068UwAAAKTdCh+H+D9QsUGlREuJ+YXUJuJTqPvLOW3mzmM/lC3UeZqVxj3LSpNQP2Cx3uVD7+8u4uMTF0DoYvTURRrLtTM="
+         license="t0068dAAAAEi808f38Qi4z18MUrhsfNJ+UOug9kkM1lbZjOk51s6dnZAxWMisFml7l6ijQh/tot6A5ndw4T6JDlhJ+0lmR1s="
          onScannerListLoaded={onScannerListLoaded} 
          onScanned={() => setScan(false)} 
         />
