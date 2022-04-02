@@ -72,6 +72,7 @@ const Scanner: React.FC<props> = (props: props) => {
       let error = function (err:any) {
         resolve(false);
       };
+      Dynamsoft.DWT.UseLocalService = false;
       Dynamsoft.DWT.ProductKey = props.license;
       Dynamsoft.DWT.CreateDWTObjectEx({
           WebTwainId: 'dwtcontrol'
@@ -104,7 +105,7 @@ const Scanner: React.FC<props> = (props: props) => {
   }, []);
 
   useEffect(() => {
-    if (props.scan == true) {
+    if (props.remoteScan == true) {
       if (DWObject) {
         DWObject.SelectSource(
           function() {
@@ -115,6 +116,30 @@ const Scanner: React.FC<props> = (props: props) => {
           },
           function() {
               console.log("SelectSource failed!");
+          });
+      }
+    }
+  }, [props.remoteScan]);
+
+  useEffect(() => {
+    if (props.scan == true) {
+      if (DWObject) {
+        let showVideoConfigs = {
+          scannerViewer:{
+            autoDetect:{
+              enableAutoDetect: true
+            }
+          },
+          filterViewer: {
+            exitDocumentScanAfterSave: true
+          }
+            };
+        DWObject.Addon.Camera.scanDocument(showVideoConfigs).then(
+          function(){
+            console.log("OK");
+          }, 
+          function(error){
+            console.log(error.message);
           });
       }
     }
