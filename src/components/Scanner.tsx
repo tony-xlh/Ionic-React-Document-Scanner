@@ -121,17 +121,17 @@ const Scanner: React.FC<props> = (props: props) => {
             autoDetect:{
               enableAutoDetect: false
             },
-            continuousScan:{   //Only applicable to video scanning.
-              visibility: true,   //Whether to display the continuous scan icon. The default value is true.
-              enableContinuousScan: false,  //Whether to enable continuous scan. The default value is true.
+            continuousScan:{
+              visibility: false,
+              enableContinuousScan: false,
             }
           },
           filterViewer: {
             exitDocumentScanAfterSave: true
           }
-            };
+        };
 
-        DWObject.Addon.Camera.scanDocument().then(
+        DWObject.Addon.Camera.scanDocument(showVideoConfigs).then(
           function(){
             console.log("OK");
           }, 
