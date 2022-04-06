@@ -22,20 +22,26 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     console.log("settings mount");
     const state = props.location.state as { scanners:string[] };
     setScanners(state.scanners);
-    const scanSettings: ScanSettings = JSON.parse(localStorage.getItem("settings")!);
-    console.log(scanSettings);
-    setSelectedScanner(state.scanners[scanSettings.selectedIndex]);
-    setResolution(scanSettings.resolution);
-    setShowUI(scanSettings.showUI);
-    setIP(localStorage.getItem("IP")!);
-    const updatePixelTypeRadio = () => {
-      setPixelType(scanSettings.pixelType);
+    let settingsAsJSON = localStorage.getItem("settings");
+    let selectedIndex = 0;
+    if (settingsAsJSON) {
+      const scanSettings: ScanSettings = JSON.parse(settingsAsJSON);
+      selectedIndex = scanSettings.selectedIndex;
+      setResolution(scanSettings.resolution);
+      setShowUI(scanSettings.showUI);
+      setIP(localStorage.getItem("IP")!);
+      const updatePixelTypeRadio = () => {
+        setPixelType(scanSettings.pixelType);
+      }
+      setTimeout(updatePixelTypeRadio,0);
     }
-    setTimeout(updatePixelTypeRadio,0);
+    if (state.scanners.length>0) {
+      setSelectedScanner(state.scanners[selectedIndex]);
+    }
   }, []);
 
   const save = () =>{
-    const selectedIndex = scanners.indexOf(selectedScanner);
+    const selectedIndex = Math.max(0, scanners.indexOf(selectedScanner));
     let scanSettings: ScanSettings = {
       selectedIndex: selectedIndex,
       showUI: showUI,

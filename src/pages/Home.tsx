@@ -11,7 +11,7 @@ let scanners:string[] = [];
 const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [scan,setScan] = useState(false);
   const [remoteScan,setRemoteScan] = useState(false);
-  const [remoteIP,setRemoteIP] = useState("127.0.0.1");
+  const [remoteIP,setRemoteIP] = useState("");
   const [deviceConfiguration, setDeviceConfiguration] = useState<DeviceConfiguration|undefined>(undefined);
 
   const loadSettings = () => {
@@ -26,8 +26,6 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     setDeviceConfiguration(deviceConfig);
     const IP = localStorage.getItem("IP");
     if (IP) {
-      console.log(typeof(IP));
-      console.log("set ip "+IP);
       setRemoteIP(IP);
     }
   }

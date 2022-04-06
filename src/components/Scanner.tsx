@@ -25,9 +25,13 @@ const Scanner: React.FC<props> = (props: props) => {
   let container = useRef<HTMLDivElement>(null);
   
   const initializeDWObjectRemote = () => {
+    Dynamsoft.DWT.DeleteDWTObject("remoteScan");
+    DWObjectRemote = undefined;
+    console.log(props.remoteIP);
+    if (props.remoteIP == "") {
+      return;
+    }
     if (props.remoteIP) {
-      Dynamsoft.DWT.DeleteDWTObject("remoteScan");
-      DWObjectRemote = undefined;
       console.log("initializing");
       var dwtConfig = {
         WebTwainId: "remoteScan",
