@@ -1,5 +1,5 @@
 import {  IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar } from "@ionic/react";
-import { settingsOutline } from 'ionicons/icons';
+import { cameraOutline, documentOutline, documentTextOutline, settingsOutline } from 'ionicons/icons';
 import { DeviceConfiguration } from "mobile-web-capture/dist/types/WebTwain.Acquire";
 import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
@@ -90,13 +90,13 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
             setRemoteScan(true);
             resetScanStateDelayed();
           }} >
-            Scan
+            <IonIcon icon={documentOutline} />
           </IonFabButton>
           <IonFabButton onClick={() => {
             setScan(true);
             resetScanStateDelayed();                           
           }} >
-            Camera
+            <IonIcon icon={cameraOutline} />
           </IonFabButton>
         </IonFab>
       </IonContent>
