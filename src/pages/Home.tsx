@@ -14,21 +14,35 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [remoteIP,setRemoteIP] = useState("127.0.0.1");
   const [deviceConfiguration, setDeviceConfiguration] = useState<DeviceConfiguration|undefined>(undefined);
 
+  const loadSettings = () => {
+    let settings = JSON.parse(localStorage.getItem("settings")!);
+    let deviceConfig:DeviceConfiguration = {
+      SelectSourceByIndex: settings.selectedIndex,
+      ShowRemoteScanUI: settings.showUI,
+      IfShowUI: settings.showUI,
+      PixelType: settings.pixelType,
+      Resolution: settings.resolution,
+    }
+    setDeviceConfiguration(deviceConfig);
+    const IP = localStorage.getItem("IP");
+    if (IP) {
+      console.log(typeof(IP));
+      console.log("set ip "+IP);
+      setRemoteIP(IP);
+    }
+  }
+
+  useEffect(() => {
+    console.log("on mount");
+    loadSettings();
+  }, []);
+
   useEffect(() => {
     const state = props.location.state as { settingsSaved:boolean };
     console.log("update settings");
     console.log(state);
     if (state && state.settingsSaved == true) {
-      let settings = JSON.parse(localStorage.getItem("settings")!);
-      let deviceConfig:DeviceConfiguration = {
-        SelectSourceByIndex: settings.selectedIndex,
-        ShowRemoteScanUI: settings.showUI,
-        IfShowUI: settings.showUI,
-        PixelType: settings.pixelType,
-        Resolution: settings.resolution,
-      }
-      setDeviceConfiguration(deviceConfig);
-      setRemoteIP(settings.IP);
+     loadSettings();
     }
   }, [props.location.state]);
 

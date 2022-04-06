@@ -1,11 +1,10 @@
-import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonItemDivider, IonLabel, IonList, IonListHeader, IonPage, IonRadio, IonRadioGroup, IonTitle, IonToggle, IonToolbar } from "@ionic/react";
+import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonItemDivider, IonLabel, IonList, IonListHeader, IonPage, IonRadio, IonRadioGroup, IonSelect, IonSelectOption, IonTitle, IonToggle, IonToolbar } from "@ionic/react";
 import { saveOutline } from "ionicons/icons";
 import { RouteComponentProps } from "react-router";
 import { useEffect, useState } from "react";
 
 export interface ScanSettings{
   selectedIndex: number;
-  IP: string;
   showUI: boolean;
   resolution: number;
   pixelType: number;
@@ -15,40 +14,38 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [IP, setIP] = useState<string>("");
   const [resolution, setResolution] = useState<number>(300);
   const [pixelType, setPixelType] = useState<number>(0);
-  const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [scanners, setScanners] = useState<string[]>([]);
+  const [selectedScanner, setSelectedScanner] = useState<string>("");
   const [showUI, setShowUI] = useState(false);
 
   useEffect(() => {
     console.log("settings mount");
+    const state = props.location.state as { scanners:string[] };
+    setScanners(state.scanners);
     const scanSettings: ScanSettings = JSON.parse(localStorage.getItem("settings")!);
-    
     console.log(scanSettings);
-
-    setSelectedIndex(scanSettings.selectedIndex);
+    setSelectedScanner(state.scanners[scanSettings.selectedIndex]);
     setResolution(scanSettings.resolution);
-    
     setShowUI(scanSettings.showUI);
-    setIP(scanSettings.IP);
+    setIP(localStorage.getItem("IP")!);
     const updatePixelTypeRadio = () => {
       setPixelType(scanSettings.pixelType);
     }
     setTimeout(updatePixelTypeRadio,0);
   }, []);
 
-  useEffect(() => {
-    const state = props.location.state as { scanners:string[] };
-    
-  }, [props.location.state]);
-
   const save = () =>{
+    const selectedIndex = scanners.indexOf(selectedScanner);
     let scanSettings: ScanSettings = {
       selectedIndex: selectedIndex,
-      IP: IP,
       showUI: showUI,
       resolution: resolution,
       pixelType: pixelType
     }
     localStorage.setItem("settings",JSON.stringify(scanSettings));
+    if (IP) {
+      localStorage.setItem("IP",IP);
+    }
     props.history.replace({state:{settingsSaved:true}});
     props.history.goBack();
   };
@@ -73,6 +70,14 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
           <IonItemDivider>IP address</IonItemDivider>
           <IonItem>
             <IonInput value={IP} placeholder="192.168.1.1" onIonChange={e => setIP(e.detail.value!)}></IonInput>
+          </IonItem>
+          <IonItem>
+            <IonLabel>Scanner:</IonLabel>
+            <IonSelect value={selectedScanner} placeholder="Scanners" onIonChange={e => setSelectedScanner(e.detail.value)}>
+              {scanners.map((scanner,idx) => (
+                <IonSelectOption key={idx} value={scanner}>{scanner}</IonSelectOption>
+              ))}              
+            </IonSelect>
           </IonItem>
           <IonItemDivider>Resolution</IonItemDivider>
           <IonItem>

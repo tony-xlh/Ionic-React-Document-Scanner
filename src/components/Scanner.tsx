@@ -60,6 +60,7 @@ const Scanner: React.FC<props> = (props: props) => {
         },
         function (error) {
           console.log(error);
+          localStorage.removeItem("IP");
         }
       );
     }
