@@ -14,7 +14,7 @@ export interface ScanSettings{
 const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [IP, setIP] = useState<string>("");
   const [resolution, setResolution] = useState<number>(300);
-  const [pixelTypeName, setPixelTypeName] = useState<string>("color");
+  const [pixelType, setPixelType] = useState<number>(0);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [showUI, setShowUI] = useState(false);
 
@@ -26,19 +26,13 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
 
     setSelectedIndex(scanSettings.selectedIndex);
     setResolution(scanSettings.resolution);
-    let name = "";
-    if (scanSettings.pixelType == 0) {
-      name = "bw";
-    } else if (scanSettings.pixelType == 1){
-      name = "gray";
-    }else{
-      name = "color";
-    }
-    console.log(name);
-    setPixelTypeName(name);
     
     setShowUI(scanSettings.showUI);
     setIP(scanSettings.IP);
+    const updatePixelTypeRadio = () => {
+      setPixelType(scanSettings.pixelType);
+    }
+    setTimeout(updatePixelTypeRadio,0);
   }, []);
 
   useEffect(() => {
@@ -46,22 +40,7 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     
   }, [props.location.state]);
 
-
-  
-  const convertPixelNameToValue = (name:string) => {
-    let value = 0;
-    if (name == "bw") {
-      value = 0;
-    } else if (name == "gray"){
-      value = 1;
-    }else{
-      value = 2;
-    }
-    return value
-  }
-
   const save = () =>{
-    const pixelType = convertPixelNameToValue(pixelTypeName);
     let scanSettings: ScanSettings = {
       selectedIndex: selectedIndex,
       IP: IP,
@@ -103,27 +82,27 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
           <IonItem>
             <IonToggle checked={showUI} onIonChange={e => setShowUI(e.detail.checked)} />
           </IonItem>
-          <IonRadioGroup value={pixelTypeName} onIonChange={e => setPixelTypeName(e.detail.value)}>
+          <IonRadioGroup value={pixelType} onIonChange={e => setPixelType(e.detail.value)}>
             <IonListHeader>
               <IonLabel>Pixel type:</IonLabel>
             </IonListHeader>
 
             <IonItem>
               <IonLabel>Black & White</IonLabel>
-              <IonRadio slot="start" value="bw" />
+              <IonRadio slot="start" value="0" />
             </IonItem>
 
             <IonItem>
               <IonLabel>Gray</IonLabel>
-              <IonRadio slot="start" value="gray" />
+              <IonRadio slot="start" value="1" />
             </IonItem>
 
             <IonItem>
               <IonLabel>Color</IonLabel>
-              <IonRadio slot="start" value="color" />
+              <IonRadio slot="start" value="2" />
             </IonItem>
             <IonItemDivider>Your Selection</IonItemDivider>
-            <IonItem>{pixelTypeName ?? '(none selected'}</IonItem>
+            <IonItem>{pixelType ?? '(none selected'}</IonItem>
           </IonRadioGroup>
         </IonList>
       </IonContent>
