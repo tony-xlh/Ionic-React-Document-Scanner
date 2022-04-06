@@ -1,15 +1,46 @@
 import {  IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar } from "@ionic/react";
 import { settingsOutline } from 'ionicons/icons';
-import { useState } from "react";
+import { DeviceConfiguration } from "mobile-web-capture/dist/types/WebTwain.Acquire";
+import { useEffect, useState } from "react";
+import { RouteComponentProps } from "react-router";
 import Scanner from "../components/Scanner";
+import { ScanSettings } from "./Settings";
 
-const Home: React.FC = () => {
+let scanners:string[] = [];
+
+const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [scan,setScan] = useState(false);
   const [remoteScan,setRemoteScan] = useState(false);
+  const [remoteIP,setRemoteIP] = useState("127.0.0.1");
+  const [deviceConfiguration, setDeviceConfiguration] = useState<DeviceConfiguration|undefined>(undefined);
+
+  useEffect(() => {
+    const state = props.location.state as { settingsSaved:boolean };
+    console.log("update settings");
+    console.log(state);
+    if (state && state.settingsSaved == true) {
+      let settings = JSON.parse(localStorage.getItem("settings")!);
+      let deviceConfig:DeviceConfiguration = {
+        SelectSourceByIndex: settings.selectedIndex,
+        ShowRemoteScanUI: settings.showUI,
+        IfShowUI: settings.showUI,
+        PixelType: settings.pixelType,
+        Resolution: settings.resolution,
+      }
+      setDeviceConfiguration(deviceConfig);
+      setRemoteIP(settings.IP);
+    }
+  }, [props.location.state]);
+
   const onScannerListLoaded = (list:string[]) => {
+    console.log("onScannerListLoaded");
     console.log(list);
-    console.log("loaded");
+    scanners = list;
   };
+
+  const goToSettings = () => {
+    props.history.push("settings",{scanners:scanners});
+  }
 
   const resetScanStateDelayed = () => {
     const reset = () => {
@@ -24,7 +55,7 @@ const Home: React.FC = () => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="end">
-            <IonButton routerLink="/settings" color="secondary">
+            <IonButton onClick={goToSettings} color="secondary">
               <IonIcon slot="icon-only"  icon={settingsOutline} />
             </IonButton>
           </IonButtons>
@@ -37,7 +68,8 @@ const Home: React.FC = () => {
          width={"100%"} 
          height={"100%"} 
          license="t0068dAAAAEi808f38Qi4z18MUrhsfNJ+UOug9kkM1lbZjOk51s6dnZAxWMisFml7l6ijQh/tot6A5ndw4T6JDlhJ+0lmR1s="
-         remoteIP="192.168.8.65"
+         remoteIP={remoteIP}
+         deviceConfig={deviceConfiguration}
          onScannerListLoaded={onScannerListLoaded} 
          onScanned={() => setScan(false)} 
         />
