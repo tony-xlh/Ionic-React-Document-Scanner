@@ -5,7 +5,7 @@ import Scanner from "../components/Scanner";
 
 const Home: React.FC = () => {
   const [scan,setScan] = useState(false);
-  const [remotescan,setRemotescan] = useState(false);
+  const [remoteScan,setRemoteScan] = useState(false);
   const onScannerListLoaded = (list:string[]) => {
     console.log(list);
     console.log("loaded");
@@ -14,7 +14,7 @@ const Home: React.FC = () => {
   const resetScanStateDelayed = () => {
     const reset = () => {
       setScan(false);
-      setRemotescan(false);
+      setRemoteScan(false);
     }
     setTimeout(reset,1000);
   }
@@ -32,15 +32,19 @@ const Home: React.FC = () => {
         </IonToolbar>
       </IonHeader>
       <IonContent style={{ height: "100%" }}>
-        <Scanner scan={scan} width={"100%"} height={"100%"} 
+        <Scanner scan={scan} 
+         remoteScan={remoteScan} 
+         width={"100%"} 
+         height={"100%"} 
          license="t0068dAAAAEi808f38Qi4z18MUrhsfNJ+UOug9kkM1lbZjOk51s6dnZAxWMisFml7l6ijQh/tot6A5ndw4T6JDlhJ+0lmR1s="
+         remoteIP="192.168.8.65"
          onScannerListLoaded={onScannerListLoaded} 
          onScanned={() => setScan(false)} 
         />
         <IonFab style={{display:"flex"}} vertical="bottom" horizontal="start" slot="fixed">
           <IonFabButton style={{marginRight:"10px"}} onClick={() => {
-            setRemotescan(true);
-            resetScanStateDelayed();                           
+            setRemoteScan(true);
+            resetScanStateDelayed();
           }} >
             Scan
           </IonFabButton>

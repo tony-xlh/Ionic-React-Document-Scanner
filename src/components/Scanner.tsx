@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import Dynamsoft from 'mobile-web-capture';
 import { WebTwain } from "mobile-web-capture/dist/types/WebTwain";
 import { ScanConfiguration } from "mobile-web-capture/dist/types/Addon.Camera";
+import { DeviceConfiguration } from "mobile-web-capture/dist/types/WebTwain.Acquire";
 
 interface props {
   license?:string,
@@ -9,25 +10,91 @@ interface props {
   onScanned?: (success:boolean) => void;
   width?: string|number;
   height?: string|number;
-  scanOptions?: ScanOptions;
+  deviceConfig?: DeviceConfiguration;
   remoteScan?: boolean;
+  remoteIP?: string;
   scan?: boolean;
 }
 
-export interface ScanOptions {
-  selectedIndex:number;
-}
-
 let DWObject:WebTwain | undefined;
+let DWObjectRemote:WebTwain | undefined;
 
 const Scanner: React.FC<props> = (props: props) => {
   const containerID = "dwtcontrolContainer";
   
   let container = useRef<HTMLDivElement>(null);
+  
+  const initializeDWObjectRemote = () => {
+    if (props.remoteIP) {
+      Dynamsoft.DWT.DeleteDWTObject("remoteScan");
+      DWObjectRemote = undefined;
+      console.log("initializing");
+      var dwtConfig = {
+        WebTwainId: "remoteScan",
+        Host: props.remoteIP,
+        Port: "18622",
+        PortSSL: "18623",
+        UseLocalService: "false",
+      };
+      Dynamsoft.DWT.CreateDWTObjectEx(
+        dwtConfig,
+        function (dwt) {
+          DWObjectRemote = dwt;
+          bindDWObjects();
+          console.log("service connected!");
+          // List the available scanners
+          DWObjectRemote.GetSourceNamesAsync(false).then(
+            function (devices) {
+              let scanners:string[] = [];
+              for (let i = 0; i < devices.length; i++) {
+                  scanners.push(devices[i].toString());
+              }
+              if (props.onScannerListLoaded){
+                props.onScannerListLoaded(scanners);
+              }
+            },
+            function (error){
+              console.log(error);
+            }
+          );
+        },
+        function (error) {
+          console.log(error);
+        }
+      );
+    }
+  }
+
+  const bindDWObjects = () => {
+    if (DWObjectRemote && DWObject) {
+      DWObjectRemote.RegisterEvent("OnPostTransferAsync", function (outputInfo) {
+        DWObjectRemote!.ConvertToBlob(
+          [DWObjectRemote!.ImageIDToIndex(outputInfo.imageId)],
+          Dynamsoft.DWT.EnumDWT_ImageType.IT_PNG,
+          function (result, indices, type) {
+            DWObject!.LoadImageFromBinary(
+              result,
+              function () {
+                console.log("LoadImageFromBinary success");
+                DWObjectRemote!.RemoveImage(
+                  DWObjectRemote!.ImageIDToIndex(outputInfo.imageId)
+                );
+              },
+              function (errorCode, errorString) {
+                console.log(errorString);
+              }
+            );
+          },
+          function (errorCode, errorString) {
+            console.log(errorString);
+          }
+        );
+      });
+    }
+  }
 
   const OnWebTWAINReady = () => {
     DWObject = Dynamsoft.DWT.GetWebTwain(containerID);
-    loadScanners();
     if (container.current) {
       if (props.height) {
         DWObject.Viewer.height = props.height;
@@ -64,19 +131,6 @@ const Scanner: React.FC<props> = (props: props) => {
     thumbnail.show();
   }
 
-  const loadScanners = () => {
-    if (props.onScannerListLoaded && DWObject) {
-      let scanners = [];
-      if (DWObject) {
-        let count = DWObject.SourceCount;
-        for (let i = 0; i < count; i++) {
-            scanners.push(DWObject.GetSourceNameItems(i));
-        }
-      }
-      props.onScannerListLoaded(scanners);
-    }
-  }
-
   useEffect(() => {
     console.log("on mount");
     Dynamsoft.DWT.RegisterEvent('OnWebTwainReady', () => {
@@ -97,20 +151,40 @@ const Scanner: React.FC<props> = (props: props) => {
 
   useEffect(() => {
     if (props.remoteScan == true) {
-      if (DWObject) {
-        DWObject.SelectSource(
-          function() {
-            if (DWObject) {
-              DWObject.OpenSource();
-              DWObject.AcquireImage();
-            }
-          },
-          function() {
-              console.log("SelectSource failed!");
-          });
+      if (DWObjectRemote) {
+        let OnAcquireImageSuccess,
+        OnAcquireImageFailure = function () {
+          DWObjectRemote!.CloseSource();
+        };
+        let deviceConfiguration:DeviceConfiguration;
+        if (props.deviceConfig) {
+          deviceConfiguration = props.deviceConfig;
+        }else{
+          deviceConfiguration = {
+            SelectSourceByIndex: 0,
+            IfShowUI: false,
+            PixelType: Dynamsoft.DWT.EnumDWT_PixelType.TWPT_RGB,
+            Resolution: 300,
+            IfFeederEnabled: false,
+            IfDuplexEnabled: false,
+            IfDisableSourceAfterAcquire: true,
+            RemoteScan: true,
+            ShowRemoteScanUI: false,
+          };
+        }
+
+        DWObjectRemote.AcquireImage(
+          deviceConfiguration,
+          OnAcquireImageSuccess,
+          OnAcquireImageFailure
+        );
       }
     }
   }, [props.remoteScan]);
+
+  useEffect(() => {
+    initializeDWObjectRemote();
+  }, [props.remoteIP]);
 
   useEffect(() => {
     if (props.scan == true) {
