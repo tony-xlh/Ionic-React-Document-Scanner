@@ -15,7 +15,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [scan,setScan] = useState(false);
   const [download,setDownload] = useState(false);
   const [remoteScan,setRemoteScan] = useState(false);
-  const [remoteIP,setRemoteIP] = useState("");
+  const [remoteIP,setRemoteIP] = useState(""); // leave the value empty
   const [deviceConfiguration, setDeviceConfiguration] = useState<DeviceConfiguration|undefined>(undefined);
 
   const loadSettings = () => {
