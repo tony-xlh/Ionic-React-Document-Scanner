@@ -1,14 +1,14 @@
-import {  IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar } from "@ionic/react";
-import { cameraOutline, documentOutline, documentTextOutline, downloadOutline, settingsOutline } from 'ionicons/icons';
+import {  IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, useIonActionSheet } from "@ionic/react";
+import { cameraOutline, documentOutline, documentTextOutline, downloadOutline, ellipseOutline, ellipsisVerticalOutline, settingsOutline, shareOutline } from 'ionicons/icons';
 import { DeviceConfiguration } from "mobile-web-capture/dist/types/WebTwain.Acquire";
 import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import Scanner from "../components/Scanner";
-import { ScanSettings } from "./Settings";
 
 let scanners:string[] = [];
 
 const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
+  const [present, dismiss] = useIonActionSheet();
   const [scan,setScan] = useState(false);
   const [download,setDownload] = useState(false);
   const [remoteScan,setRemoteScan] = useState(false);
@@ -59,11 +59,6 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     props.history.push("settings",{scanners:scanners});
   }
 
-  const downloadAll = () => {
-    setDownload(true);
-    resetScanStateDelayed();
-  }
-
   const resetScanStateDelayed = () => {
     const reset = () => {
       setScan(false);
@@ -73,19 +68,30 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     setTimeout(reset,1000);
   }
 
+  const showShareActionSheet = () => {
+    const downloadAll = () => {
+      setDownload(true);
+      resetScanStateDelayed();
+    }
+    present({
+      buttons: [{ text: 'Download as PDF',handler:downloadAll }, { text: 'Cancel' }],
+      header: 'Select an action'
+    })
+  }
+
   return (
    <IonPage>
       <IonHeader>
         <IonToolbar>
+          <IonTitle>Document Scanner</IonTitle>
           <IonButtons slot="end">
-           <IonButton onClick={downloadAll} color="secondary">
-              <IonIcon slot="icon-only"  icon={downloadOutline} />
+            <IonButton onClick={showShareActionSheet} color="secondary">
+              <IonIcon slot="icon-only"  icon={shareOutline} />
             </IonButton>
             <IonButton onClick={goToSettings} color="secondary">
               <IonIcon slot="icon-only"  icon={settingsOutline} />
             </IonButton>
           </IonButtons>
-          <IonTitle>Document Scanner</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent style={{ height: "100%" }}>
