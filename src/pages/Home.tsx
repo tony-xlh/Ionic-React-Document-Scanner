@@ -1,5 +1,5 @@
 import {  IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar } from "@ionic/react";
-import { cameraOutline, documentOutline, documentTextOutline, settingsOutline } from 'ionicons/icons';
+import { cameraOutline, documentOutline, documentTextOutline, downloadOutline, settingsOutline } from 'ionicons/icons';
 import { DeviceConfiguration } from "mobile-web-capture/dist/types/WebTwain.Acquire";
 import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
@@ -10,20 +10,25 @@ let scanners:string[] = [];
 
 const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [scan,setScan] = useState(false);
+  const [download,setDownload] = useState(false);
   const [remoteScan,setRemoteScan] = useState(false);
   const [remoteIP,setRemoteIP] = useState("");
   const [deviceConfiguration, setDeviceConfiguration] = useState<DeviceConfiguration|undefined>(undefined);
 
   const loadSettings = () => {
-    let settings = JSON.parse(localStorage.getItem("settings")!);
-    let deviceConfig:DeviceConfiguration = {
-      SelectSourceByIndex: settings.selectedIndex,
-      ShowRemoteScanUI: settings.showUI,
-      IfShowUI: settings.showUI,
-      PixelType: settings.pixelType,
-      Resolution: settings.resolution,
+    const settingsAsJSON = localStorage.getItem("settings");
+    if (settingsAsJSON) {
+      let settings = JSON.parse(settingsAsJSON);
+      let deviceConfig:DeviceConfiguration = {
+        SelectSourceByIndex: settings.selectedIndex,
+        ShowRemoteScanUI: settings.showUI,
+        IfShowUI: settings.showUI,
+        PixelType: settings.pixelType,
+        Resolution: settings.resolution,
+      }
+      setDeviceConfiguration(deviceConfig);
     }
-    setDeviceConfiguration(deviceConfig);
+    
     const IP = localStorage.getItem("IP");
     if (IP) {
       setRemoteIP(IP);
@@ -54,10 +59,16 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     props.history.push("settings",{scanners:scanners});
   }
 
+  const downloadAll = () => {
+    setDownload(true);
+    resetScanStateDelayed();
+  }
+
   const resetScanStateDelayed = () => {
     const reset = () => {
       setScan(false);
       setRemoteScan(false);
+      setDownload(false);
     }
     setTimeout(reset,1000);
   }
@@ -67,6 +78,9 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
       <IonHeader>
         <IonToolbar>
           <IonButtons slot="end">
+           <IonButton onClick={downloadAll} color="secondary">
+              <IonIcon slot="icon-only"  icon={downloadOutline} />
+            </IonButton>
             <IonButton onClick={goToSettings} color="secondary">
               <IonIcon slot="icon-only"  icon={settingsOutline} />
             </IonButton>
@@ -77,6 +91,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
       <IonContent style={{ height: "100%" }}>
         <Scanner scan={scan} 
          remoteScan={remoteScan} 
+         download={download}
          width={"100%"} 
          height={"100%"} 
          license="t0068dAAAAEi808f38Qi4z18MUrhsfNJ+UOug9kkM1lbZjOk51s6dnZAxWMisFml7l6ijQh/tot6A5ndw4T6JDlhJ+0lmR1s="
@@ -94,7 +109,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
           </IonFabButton>
           <IonFabButton onClick={() => {
             setScan(true);
-            resetScanStateDelayed();                           
+            resetScanStateDelayed();
           }} >
             <IonIcon icon={cameraOutline} />
           </IonFabButton>

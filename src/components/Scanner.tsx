@@ -14,6 +14,7 @@ interface props {
   remoteScan?: boolean;
   remoteIP?: string;
   scan?: boolean;
+  download?: boolean;
 }
 
 let DWObject:WebTwain | undefined;
@@ -189,6 +190,21 @@ const Scanner: React.FC<props> = (props: props) => {
   useEffect(() => {
     initializeDWObjectRemote();
   }, [props.remoteIP]);
+
+  useEffect(() => {
+    if (props.download == true && DWObject) {
+      console.log("download");
+      const OnSuccess = () => {
+        console.log('successful');
+      }
+
+      const OnFailure = () => {
+        console.log('error');
+      }
+      DWObject.IfShowFileDialog = true;
+      DWObject.SaveAllAsPDF("Scanned.pdf",OnSuccess,OnFailure);
+    }
+  }, [props.download]);
 
   useEffect(() => {
     if (props.scan == true) {
