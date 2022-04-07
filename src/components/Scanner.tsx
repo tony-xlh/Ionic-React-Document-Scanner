@@ -218,7 +218,6 @@ const Scanner: React.FC<props> = (props: props) => {
           if (props.onCameraClosed) {
             props.onCameraClosed(true);
           }
-          console.log("funcConfirmExit");
           return true;
         }
         let showVideoConfigs:ScanConfiguration = {
