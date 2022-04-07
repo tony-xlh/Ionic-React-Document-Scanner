@@ -129,8 +129,6 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
               <IonLabel>Color</IonLabel>
               <IonRadio slot="start" value="2" />
             </IonItem>
-            <IonItemDivider>Your Selection</IonItemDivider>
-            <IonItem>{pixelType ?? '(none selected'}</IonItem>
           </IonRadioGroup>
         </IonList>
       </IonContent>
