@@ -65,8 +65,9 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   };
 
   const check = () =>{
-    const URL:string = "https://" + IP + ":18623";
-    props.history.push("cerf",{RemoteURL:URL});
+    const URL:string = "http://" + IP + ":18622";
+    window.location.href = URL;
+    //props.history.push("cerf",{RemoteURL:URL});
   }
 
   return (

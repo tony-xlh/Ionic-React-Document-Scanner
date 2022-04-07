@@ -3,7 +3,10 @@
 	"appName": "document-scanner",
 	"webDir": "build",
   "server":{
-    "allowNavigation": ["*"]
+		"hostname": "localhost",
+		"androidScheme": "http",
+    "allowNavigation": ["*"],
+		"cleartext": true
   },
 	"bundledWebRuntime": false
 }
