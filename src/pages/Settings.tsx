@@ -1,4 +1,4 @@
-import { IonBackButton, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonItemDivider, IonLabel, IonList, IonListHeader, IonPage, IonRadio, IonRadioGroup, IonSelect, IonSelectOption, IonTitle, IonToggle, IonToolbar } from "@ionic/react";
+import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonContent, IonHeader, IonIcon, IonInput, IonItem, IonItemDivider, IonLabel, IonList, IonListHeader, IonPage, IonRadio, IonRadioGroup, IonSelect, IonSelectOption, IonTitle, IonToggle, IonToolbar } from "@ionic/react";
 import { saveOutline } from "ionicons/icons";
 import { RouteComponentProps } from "react-router";
 import { useEffect, useState } from "react";
@@ -98,17 +98,17 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
           <IonItem>
             <IonInput type="number" value={resolution} placeholder="300" onIonChange={e => setResolution(e.detail.value as unknown as number)}></IonInput>
           </IonItem>
-          <IonItemDivider>ShowUI</IonItemDivider>
           <IonItem>
-            <IonToggle checked={showUI} onIonChange={e => setShowUI(e.detail.checked)} />
+            <IonLabel>Show UI</IonLabel>
+            <IonToggle slot="end" checked={showUI} onIonChange={e => setShowUI(e.detail.checked)} />
           </IonItem>
-          <IonItemDivider>Duplex</IonItemDivider>
           <IonItem>
-            <IonToggle checked={duplex} onIonChange={e => setDuplex(e.detail.checked)} />
+            <IonLabel>Duplex</IonLabel>
+            <IonToggle slot="end" checked={duplex} onIonChange={e => setDuplex(e.detail.checked)} />
           </IonItem>
-          <IonItemDivider>Auto Feeder (ADF)</IonItemDivider>
           <IonItem>
-            <IonToggle checked={autoFeeder} onIonChange={e => setAutoFeeder(e.detail.checked)} />
+            <IonLabel>Auto Feeder (ADF)</IonLabel>
+            <IonToggle slot="end" checked={autoFeeder} onIonChange={e => setAutoFeeder(e.detail.checked)} />
           </IonItem>
           <IonRadioGroup value={pixelType} onIonChange={e => setPixelType(e.detail.value)}>
             <IonListHeader>
