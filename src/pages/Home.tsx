@@ -1,5 +1,5 @@
 import {  IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, useIonActionSheet } from "@ionic/react";
-import { cameraOutline, documentOutline,  settingsOutline, shareOutline } from 'ionicons/icons';
+import { cameraOutline, documentOutline,  ellipsisVerticalOutline,  settingsOutline, shareOutline } from 'ionicons/icons';
 import Dynamsoft from 'mobile-web-capture';
 import { WebTwain } from "mobile-web-capture/dist/types/WebTwain";
 import { DeviceConfiguration } from "mobile-web-capture/dist/types/WebTwain.Acquire";
@@ -81,6 +81,24 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     return indices;
   }
 
+  const showImageActionSheet = () => {
+    const deleteSelected = () => {
+      if (DWObject) {
+        DWObject.RemoveAllSelectedImages();
+      }
+    }
+
+    const editSelected = () => {
+      if (DWObject) {
+        DWObject.ShowImageEditor();
+      }
+    }
+
+    present({
+      buttons: [{ text: 'Delete selected', handler:deleteSelected }, { text: 'Edit selected', handler:editSelected }, { text: 'Cancel' } ],
+      header: 'Select an action'
+    })
+  }
   const showShareActionSheet = () => {
     const downloadAll = () => {
       setDownload(true);
@@ -150,6 +168,11 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
             resetScanStateDelayed();
           }} >
             <IonIcon icon={cameraOutline} />
+          </IonFabButton>
+        </IonFab>
+        <IonFab style={{display:"flex"}} vertical="bottom" horizontal="end" slot="fixed">
+          <IonFabButton onClick={showImageActionSheet}>
+            <IonIcon icon={ellipsisVerticalOutline} />
           </IonFabButton>
         </IonFab>
       </IonContent>
