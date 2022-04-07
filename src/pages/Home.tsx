@@ -61,10 +61,11 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
 
   useEffect(() => {
     const state = props.location.state as { settingsSaved:boolean };
-    console.log("update settings");
     console.log(state);
+
     if (state && state.settingsSaved == true) {
-     loadSettings();
+      console.log(state.settingsSaved);
+      loadSettings();
     }
   }, [props.location.state]);
 

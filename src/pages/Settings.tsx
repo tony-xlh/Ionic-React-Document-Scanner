@@ -10,7 +10,6 @@ export interface ScanSettings{
   duplex: boolean;
   resolution: number;
   pixelType: number;
-  
 }
 
 const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
@@ -65,6 +64,11 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     props.history.goBack();
   };
 
+  const check = () =>{
+    const URL:string = "https://" + IP + ":18623";
+    props.history.push("cerf",{RemoteURL:URL});
+  }
+
   return (
     <IonPage>
       <IonHeader>
@@ -85,6 +89,7 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
           <IonItemDivider>IP address</IonItemDivider>
           <IonItem>
             <IonInput value={IP} placeholder="192.168.1.1" onIonChange={e => setIP(e.detail.value!)}></IonInput>
+            <IonButton onClick={check}>Check</IonButton>
           </IonItem>
           <IonItem>
             <IonLabel>Scanner:</IonLabel>
