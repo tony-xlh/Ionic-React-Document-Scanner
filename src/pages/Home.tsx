@@ -1,11 +1,14 @@
 import {  IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, useIonActionSheet } from "@ionic/react";
-import { cameraOutline, documentOutline, documentTextOutline, downloadOutline, ellipseOutline, ellipsisVerticalOutline, settingsOutline, shareOutline } from 'ionicons/icons';
+import { cameraOutline, documentOutline,  settingsOutline, shareOutline } from 'ionicons/icons';
+import Dynamsoft from 'mobile-web-capture';
+import { WebTwain } from "mobile-web-capture/dist/types/WebTwain";
 import { DeviceConfiguration } from "mobile-web-capture/dist/types/WebTwain.Acquire";
 import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import Scanner from "../components/Scanner";
 
 let scanners:string[] = [];
+let DWObject:WebTwain;
 
 const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [present, dismiss] = useIonActionSheet();
@@ -68,13 +71,40 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     setTimeout(reset,1000);
   }
 
+  const getImageIndices = () => {
+    var indices = [];
+    if (DWObject) {
+      for (var i=0;i<DWObject.HowManyImagesInBuffer;i++){
+        indices.push(i)
+      }
+    }
+    return indices;
+  }
+
   const showShareActionSheet = () => {
     const downloadAll = () => {
       setDownload(true);
       resetScanStateDelayed();
     }
+
+    const share = () => {
+      console.log("share");
+      const success = (result:Blob, indices:number[], type:number) => {
+        console.log(result);
+        let pdf:File = new File([result],"scanned.pdf");
+        const data:ShareData = {files:[pdf]};
+        navigator.share(data);
+      }
+      const failure = (errorCode:number, errorString:string) => {
+        console.log(errorString);
+      }
+      if (DWObject) {
+        DWObject.ConvertToBlob(getImageIndices(),Dynamsoft.DWT.EnumDWT_ImageType.IT_PDF,success,failure)
+      }
+    }
+    
     present({
-      buttons: [{ text: 'Download as PDF',handler:downloadAll }, { text: 'Cancel' }],
+      buttons: [{ text: 'Download as PDF', handler:downloadAll }, { text: 'Export to PDF and share', handler:share }, { text: 'Cancel' } ],
       header: 'Select an action'
     })
   }
@@ -103,6 +133,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
          license="t0068dAAAAEi808f38Qi4z18MUrhsfNJ+UOug9kkM1lbZjOk51s6dnZAxWMisFml7l6ijQh/tot6A5ndw4T6JDlhJ+0lmR1s="
          remoteIP={remoteIP}
          deviceConfig={deviceConfiguration}
+         onWebTWAINReady={(dwt) =>{ DWObject = dwt }}
          onScannerListLoaded={onScannerListLoaded} 
          onScanned={() => setScan(false)} 
         />

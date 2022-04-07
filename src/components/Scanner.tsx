@@ -6,6 +6,7 @@ import { DeviceConfiguration } from "mobile-web-capture/dist/types/WebTwain.Acqu
 
 interface props {
   license?:string,
+  onWebTWAINReady?: (dwt:WebTwain) => void;
   onScannerListLoaded?: (list:string[]) => void;
   onScanned?: (success:boolean) => void;
   width?: string|number;
@@ -100,6 +101,9 @@ const Scanner: React.FC<props> = (props: props) => {
 
   const OnWebTWAINReady = () => {
     DWObject = Dynamsoft.DWT.GetWebTwain(containerID);
+    if (props.onWebTWAINReady) {
+      props.onWebTWAINReady(DWObject);
+    }
     if (container.current) {
       if (props.height) {
         DWObject.Viewer.height = props.height;
