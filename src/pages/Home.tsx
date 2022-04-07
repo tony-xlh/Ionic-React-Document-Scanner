@@ -1,4 +1,4 @@
-import {  IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, useIonActionSheet } from "@ionic/react";
+import { IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, isPlatform, useIonActionSheet } from "@ionic/react";
 import { cameraOutline, documentOutline,  ellipsisVerticalOutline,  settingsOutline, shareOutline } from 'ionicons/icons';
 import Dynamsoft from 'mobile-web-capture';
 import { WebTwain } from "mobile-web-capture/dist/types/WebTwain";
@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import Scanner from "../components/Scanner";
 import { ScanSettings } from "./Settings";
+import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/';
+import { getPlatforms } from "@ionic/core";
 
 let scanners:string[] = [];
 let DWObject:WebTwain;
@@ -41,9 +43,20 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     }
   }
 
+  const checkAndRequestCameraPermission = async () => {
+    let result = await AndroidPermissions.checkPermission(AndroidPermissions.PERMISSION.CAMERA);
+    if (result.hasPermission == false) {
+      let response = await AndroidPermissions.requestPermission(AndroidPermissions.PERMISSION.CAMERA);
+      console.log(response.hasPermission);
+    }
+  }
+
   useEffect(() => {
     console.log("on mount");
     loadSettings();
+    if (isPlatform("android")) {
+      checkAndRequestCameraPermission();
+    }
   }, []);
 
   useEffect(() => {

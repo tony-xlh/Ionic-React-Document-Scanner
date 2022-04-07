@@ -2,5 +2,8 @@
 	"appId": "io.ionic.starter",
 	"appName": "document-scanner",
 	"webDir": "build",
+  "server":{
+    "allowNavigation": ["*"]
+  },
 	"bundledWebRuntime": false
 }
