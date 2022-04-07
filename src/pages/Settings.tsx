@@ -6,8 +6,11 @@ import { useEffect, useState } from "react";
 export interface ScanSettings{
   selectedIndex: number;
   showUI: boolean;
+  autoFeeder: boolean;
+  duplex: boolean;
   resolution: number;
   pixelType: number;
+  
 }
 
 const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
@@ -17,6 +20,8 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [scanners, setScanners] = useState<string[]>([]);
   const [selectedScanner, setSelectedScanner] = useState<string>("");
   const [showUI, setShowUI] = useState(false);
+  const [duplex, setDuplex] = useState(false);
+  const [autoFeeder, setAutoFeeder] = useState(false);
 
   useEffect(() => {
     console.log("settings mount");
@@ -29,6 +34,8 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
       selectedIndex = scanSettings.selectedIndex;
       setResolution(scanSettings.resolution);
       setShowUI(scanSettings.showUI);
+      setAutoFeeder(scanSettings.autoFeeder);
+      setDuplex(scanSettings.duplex);
       setIP(localStorage.getItem("IP")!);
       const updatePixelTypeRadio = () => {
         setPixelType(scanSettings.pixelType);
@@ -45,6 +52,8 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     let scanSettings: ScanSettings = {
       selectedIndex: selectedIndex,
       showUI: showUI,
+      autoFeeder: autoFeeder,
+      duplex: duplex,
       resolution: resolution,
       pixelType: pixelType
     }
@@ -92,6 +101,14 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
           <IonItemDivider>ShowUI</IonItemDivider>
           <IonItem>
             <IonToggle checked={showUI} onIonChange={e => setShowUI(e.detail.checked)} />
+          </IonItem>
+          <IonItemDivider>Duplex</IonItemDivider>
+          <IonItem>
+            <IonToggle checked={duplex} onIonChange={e => setDuplex(e.detail.checked)} />
+          </IonItem>
+          <IonItemDivider>Auto Feeder (ADF)</IonItemDivider>
+          <IonItem>
+            <IonToggle checked={autoFeeder} onIonChange={e => setAutoFeeder(e.detail.checked)} />
           </IonItem>
           <IonRadioGroup value={pixelType} onIonChange={e => setPixelType(e.detail.value)}>
             <IonListHeader>

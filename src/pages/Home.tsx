@@ -6,6 +6,7 @@ import { DeviceConfiguration } from "mobile-web-capture/dist/types/WebTwain.Acqu
 import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import Scanner from "../components/Scanner";
+import { ScanSettings } from "./Settings";
 
 let scanners:string[] = [];
 let DWObject:WebTwain;
@@ -21,11 +22,13 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const loadSettings = () => {
     const settingsAsJSON = localStorage.getItem("settings");
     if (settingsAsJSON) {
-      let settings = JSON.parse(settingsAsJSON);
+      let settings:ScanSettings = JSON.parse(settingsAsJSON);
       let deviceConfig:DeviceConfiguration = {
         SelectSourceByIndex: settings.selectedIndex,
         ShowRemoteScanUI: settings.showUI,
         IfShowUI: settings.showUI,
+        IfFeederEnabled: settings.autoFeeder,
+        IfDuplexEnabled: settings.duplex,
         PixelType: settings.pixelType,
         Resolution: settings.resolution,
       }
