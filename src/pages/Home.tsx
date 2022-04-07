@@ -95,6 +95,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
         const data:ShareData = {files:[pdf]};
         navigator.share(data);
       }
+      
       const failure = (errorCode:number, errorString:string) => {
         console.log(errorString);
       }
@@ -135,6 +136,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
          deviceConfig={deviceConfiguration}
          onWebTWAINReady={(dwt) =>{ DWObject = dwt }}
          onScannerListLoaded={onScannerListLoaded} 
+         onCameraClosed={()=>{document.exitFullscreen()}}
          onScanned={() => setScan(false)} 
         />
         <IonFab style={{display:"flex"}} vertical="bottom" horizontal="start" slot="fixed">
@@ -145,6 +147,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
             <IonIcon icon={documentOutline} />
           </IonFabButton>
           <IonFabButton onClick={() => {
+            document.body.requestFullscreen();
             setScan(true);
             resetScanStateDelayed();
           }} >

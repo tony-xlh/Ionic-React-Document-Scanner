@@ -9,6 +9,7 @@ interface props {
   onWebTWAINReady?: (dwt:WebTwain) => void;
   onScannerListLoaded?: (list:string[]) => void;
   onScanned?: (success:boolean) => void;
+  onCameraClosed?: (success:boolean) => void;
   width?: string|number;
   height?: string|number;
   deviceConfig?: DeviceConfiguration;
@@ -213,19 +214,27 @@ const Scanner: React.FC<props> = (props: props) => {
   useEffect(() => {
     if (props.scan == true) {
       if (DWObject) {
+        const funcConfirmExit = (bExistImage:boolean):boolean => {
+          if (props.onCameraClosed) {
+            props.onCameraClosed(true);
+          }
+          console.log("funcConfirmExit");
+          return true;
+        }
         let showVideoConfigs:ScanConfiguration = {
           element: undefined,
           scannerViewer:{
             autoDetect:{
               enableAutoDetect: false
             },
+            funcConfirmExit: funcConfirmExit,
             continuousScan:{
               visibility: false,
               enableContinuousScan: false,
             }
           },
           filterViewer: {
-            exitDocumentScanAfterSave: true
+            exitDocumentScanAfterSave: false
           }
         };
 
