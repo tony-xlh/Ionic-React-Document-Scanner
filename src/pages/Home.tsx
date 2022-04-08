@@ -119,17 +119,15 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     })
   }
   const showShareActionSheet = () => {
-    const downloadAll = () => {
+    const save = () => {
       if (DWObject) {
-        
-
         if (Capacitor.isNativePlatform()) {
           const OnSuccess = async (result:Base64Result, indices:number[], type:number) => {
             console.log('successful');
             let writingResult = await Filesystem.writeFile({
               path: getFormattedDate()+".pdf",
               data: result.getData(0,result.getLength()),
-              directory: Directory.Documents
+              directory: Directory.Data
             })
             await Toast.show({
               text: 'File is written to '+writingResult.uri,
@@ -219,7 +217,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     }
     
     present({
-      buttons: [{ text: 'Download as PDF', handler:downloadAll }, { text: 'Export to PDF and share', handler:share }, { text: 'Cancel' } ],
+      buttons: [{ text: 'Save as PDF', handler:save }, { text: 'Export to PDF and share', handler:share }, { text: 'Cancel' } ],
       header: 'Select an action'
     })
   }
