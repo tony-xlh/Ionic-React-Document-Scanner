@@ -241,15 +241,19 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
       </IonHeader>
       <IonContent style={{ height: "100%" }}>
         <Scanner scan={scan} 
-         remoteScan={remoteScan} 
-         width={"100%"} 
-         height={"100%"} 
-         license="t0068dAAAAEi808f38Qi4z18MUrhsfNJ+UOug9kkM1lbZjOk51s6dnZAxWMisFml7l6ijQh/tot6A5ndw4T6JDlhJ+0lmR1s="
-         remoteIP={remoteIP}
-         deviceConfig={deviceConfiguration}
-         onWebTWAINReady={(dwt) =>{ DWObject = dwt; loadSettings(); }}
-         onScannerListLoaded={onScannerListLoaded} 
-         onScanned={() => setScan(false)} 
+          remoteScan={remoteScan} 
+          width={"100%"} 
+          height={"100%"} 
+          license="t0068dAAAAEi808f38Qi4z18MUrhsfNJ+UOug9kkM1lbZjOk51s6dnZAxWMisFml7l6ijQh/tot6A5ndw4T6JDlhJ+0lmR1s="
+          remoteIP={remoteIP}
+          deviceConfig={deviceConfiguration}
+          onWebTWAINReady={(dwt) =>{ DWObject = dwt; loadSettings(); }}
+          onScannerListLoaded={onScannerListLoaded} 
+          onScanned={(success) => {
+            if (success == false) {
+              alert("Failed. Please check your settings.");
+            }
+          }} 
         />
         <IonFab style={{display:"flex"}} vertical="bottom" horizontal="start" slot="fixed">
           <IonFabButton style={{marginRight:"10px"}} onClick={() => {

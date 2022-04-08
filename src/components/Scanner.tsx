@@ -161,8 +161,16 @@ const Scanner: React.FC<props> = (props: props) => {
   useEffect(() => {
     if (props.remoteScan == true) {
       if (DWObjectRemote) {
-        let OnAcquireImageSuccess,
-        OnAcquireImageFailure = function () {
+        const OnAcquireImageSuccess = function () {
+          if (props.onScanned) {
+            props.onScanned(true);
+          }
+          DWObjectRemote!.CloseSource();
+        };
+        const OnAcquireImageFailure = function () {
+          if (props.onScanned) {
+            props.onScanned(false);
+          }
           DWObjectRemote!.CloseSource();
         };
         let deviceConfiguration:DeviceConfiguration;
@@ -187,6 +195,10 @@ const Scanner: React.FC<props> = (props: props) => {
           OnAcquireImageSuccess,
           OnAcquireImageFailure
         );
+      } else {
+        if (props.onScanned) {
+          props.onScanned(false);
+        }
       }
     }
   }, [props.remoteScan]);
