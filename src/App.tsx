@@ -26,8 +26,6 @@ import '@ionic/react/css/display.css';
 import './theme/variables.css';
 import Home from './pages/Home';
 import Settings from './pages/Settings';
-import RadioExamples from './pages/Test';
-import CheckCertificate from './pages/CheckCertificate';
 
 setupIonicReact();
 
@@ -37,8 +35,6 @@ const App: React.FC = () => (
     <IonRouterOutlet>
         <Route path="/" component={Home} exact={true} />
         <Route path="/settings" component={Settings} exact={true} />
-        <Route path="/cerf" component={CheckCertificate} exact={true} />
-        <Route path="/test" component={RadioExamples} exact={true} />
       </IonRouterOutlet>
     </IonReactRouter>
   </IonApp>

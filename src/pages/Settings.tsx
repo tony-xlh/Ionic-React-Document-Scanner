@@ -2,6 +2,7 @@ import { IonBackButton, IonButton, IonButtons, IonCheckbox, IonContent, IonHeade
 import { saveOutline } from "ionicons/icons";
 import { RouteComponentProps } from "react-router";
 import { useEffect, useState } from "react";
+import { Capacitor } from '@capacitor/core';
 
 export interface ScanSettings{
   selectedIndex: number;
@@ -65,9 +66,8 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   };
 
   const check = () =>{
-    const URL:string = "http://" + IP + ":18622";
-    window.location.href = URL;
-    //props.history.push("cerf",{RemoteURL:URL});
+    const URL:string = "https://" + IP + ":18623";
+    window.open(URL);
   }
 
   return (
@@ -90,7 +90,9 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
           <IonItemDivider>IP address</IonItemDivider>
           <IonItem>
             <IonInput value={IP} placeholder="192.168.1.1" onIonChange={e => setIP(e.detail.value!)}></IonInput>
-            <IonButton onClick={check}>Check</IonButton>
+            {(Capacitor.isNativePlatform() == false) &&
+              <IonButton onClick={check}>Check</IonButton>
+            }
           </IonItem>
           <IonItem>
             <IonLabel>Scanner:</IonLabel>
