@@ -2,12 +2,14 @@
 	"appId": "io.ionic.starter",
 	"appName": "document-scanner",
 	"webDir": "build",
-  "server":{
+	"server": {
 		"hostname": "localhost",
 		"iosScheme": "http",
 		"androidScheme": "http",
-    "allowNavigation": ["*"],
+		"allowNavigation": [
+			"*"
+		],
 		"cleartext": true
-  },
+	},
 	"bundledWebRuntime": false
 }
