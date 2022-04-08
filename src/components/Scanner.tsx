@@ -194,7 +194,7 @@ const Scanner: React.FC<props> = (props: props) => {
 
   useEffect(() => {
     initializeDWObjectRemote();
-  }, [props.remoteIP, props.deviceConfig]);
+  }, [props.remoteIP]);
 
   useEffect(() => {
     if (props.download == true && DWObject) {
