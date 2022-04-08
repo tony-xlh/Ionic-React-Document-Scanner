@@ -1,4 +1,4 @@
-import { IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, isPlatform, useIonActionSheet } from "@ionic/react";
+import { IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, isPlatform, useIonActionSheet, useIonToast } from "@ionic/react";
 import { cameraOutline, documentOutline,  ellipsisVerticalOutline,  settingsOutline, shareOutline } from 'ionicons/icons';
 import Dynamsoft from 'mobile-web-capture';
 import { WebTwain } from "mobile-web-capture/dist/types/WebTwain";
@@ -8,6 +8,11 @@ import { RouteComponentProps } from "react-router";
 import Scanner from "../components/Scanner";
 import { ScanSettings } from "./Settings";
 import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/';
+import { Directory, Filesystem } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
+import { Capacitor } from "@capacitor/core";
+import { Toast } from '@capacitor/toast';
+import { Base64Result } from "mobile-web-capture/dist/types/WebTwain.IO";
 
 let scanners:string[] = [];
 let DWObject:WebTwain;
@@ -15,7 +20,6 @@ let DWObject:WebTwain;
 const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [present, dismiss] = useIonActionSheet();
   const [scan,setScan] = useState(false);
-  const [download,setDownload] = useState(false);
   const [remoteScan,setRemoteScan] = useState(false);
   const [remoteIP,setRemoteIP] = useState(""); // leave the value empty
   const [deviceConfiguration, setDeviceConfiguration] = useState<DeviceConfiguration|undefined>(undefined);
@@ -82,7 +86,6 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     const reset = () => {
       setScan(false);
       setRemoteScan(false);
-      setDownload(false);
     }
     setTimeout(reset,1000);
   }
@@ -117,25 +120,102 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   }
   const showShareActionSheet = () => {
     const downloadAll = () => {
-      setDownload(true);
-      resetScanStateDelayed();
+      if (DWObject) {
+        
+
+        if (Capacitor.isNativePlatform()) {
+          const OnSuccess = async (result:Base64Result, indices:number[], type:number) => {
+            console.log('successful');
+            let writingResult = await Filesystem.writeFile({
+              path: getFormattedDate()+".pdf",
+              data: result.getData(0,result.getLength()),
+              directory: Directory.Documents
+            })
+            await Toast.show({
+              text: 'File is written to '+writingResult.uri,
+            });
+          }
+    
+          const OnFailure = () => {
+            console.log('error');
+          }
+          DWObject.ConvertToBase64(getImageIndices(),Dynamsoft.DWT.EnumDWT_ImageType.IT_PDF,OnSuccess,OnFailure)
+          
+        }else{
+          const OnSuccess = () => {
+            console.log('successful');
+          }
+    
+          const OnFailure = () => {
+            console.log('error');
+          }
+          DWObject.SaveAllAsPDF("Scanned.pdf",OnSuccess,OnFailure);
+        }
+      }
     }
 
+    const getFormattedDate = () => {
+      let date = new Date();
+
+      let month = date.getMonth() + 1;
+      let day = date.getDate();
+      let hour = date.getHours();
+      let min = date.getMinutes();
+      let sec = date.getSeconds();
+
+      let monthStr = (month < 10 ? "0" : "") + month;
+      let dayStr = (day < 10 ? "0" : "") + day;
+      let hourStr = (hour < 10 ? "0" : "") + hour;
+      let minStr = (min < 10 ? "0" : "") + min;
+      let secStr = (sec < 10 ? "0" : "") + sec;
+
+      var str = date.getFullYear().toString() + monthStr + dayStr + hourStr + minStr + secStr;
+
+      return str;
+  }
     const share = () => {
       console.log("share");
-      const success = (result:Blob, indices:number[], type:number) => {
-        console.log(result);
-        let pdf:File = new File([result],"scanned.pdf");
-        const data:ShareData = {files:[pdf]};
-        navigator.share(data);
+      if (Capacitor.isNativePlatform()) {
+        const success = async (result:Base64Result, indices:number[], type:number) => {
+          let fileName = getFormattedDate()+".pdf";
+          let writingResult = await Filesystem.writeFile({
+            path: fileName,
+            data: result.getData(0,result.getLength()),
+            directory: Directory.Cache
+          });
+          Share.share({
+            title: fileName,
+            text: fileName,
+            url: writingResult.uri,
+          });
+        }
+        
+        const failure = (errorCode:number, errorString:string) => {
+          console.log(errorString);
+        }
+
+        if (DWObject) {
+          DWObject.ConvertToBase64(getImageIndices(),Dynamsoft.DWT.EnumDWT_ImageType.IT_PDF,success,failure)
+        }
+      }else{
+        if (window.location.protocol == "http:") {
+          alert("Only available to secure context.");
+          return;
+        }
+        const success = async (result:Blob, indices:number[], type:number) => {
+          let pdf:File = new File([result],"scanned.pdf");
+          const data:ShareData = {files:[pdf]};
+          await navigator.share(data);
+        }
+        
+        const failure = (errorCode:number, errorString:string) => {
+          console.log(errorString);
+        }
+        if (DWObject) {
+          DWObject.ConvertToBlob(getImageIndices(),Dynamsoft.DWT.EnumDWT_ImageType.IT_PDF,success,failure)
+        }
       }
       
-      const failure = (errorCode:number, errorString:string) => {
-        console.log(errorString);
-      }
-      if (DWObject) {
-        DWObject.ConvertToBlob(getImageIndices(),Dynamsoft.DWT.EnumDWT_ImageType.IT_PDF,success,failure)
-      }
     }
     
     present({
@@ -162,7 +242,6 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
       <IonContent style={{ height: "100%" }}>
         <Scanner scan={scan} 
          remoteScan={remoteScan} 
-         download={download}
          width={"100%"} 
          height={"100%"} 
          license="t0068dAAAAEi808f38Qi4z18MUrhsfNJ+UOug9kkM1lbZjOk51s6dnZAxWMisFml7l6ijQh/tot6A5ndw4T6JDlhJ+0lmR1s="
