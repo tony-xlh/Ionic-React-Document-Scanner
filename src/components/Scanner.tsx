@@ -3,6 +3,7 @@ import Dynamsoft from 'mobile-web-capture';
 import { WebTwain } from "mobile-web-capture/dist/types/WebTwain";
 import { ScanConfiguration } from "mobile-web-capture/dist/types/Addon.Camera";
 import { DeviceConfiguration } from "mobile-web-capture/dist/types/WebTwain.Acquire";
+import { isPlatform } from "@ionic/react";
 
 interface props {
   license?:string,
@@ -155,6 +156,9 @@ const Scanner: React.FC<props> = (props: props) => {
         Width: '300px',
         Height: '400px'
     }];
+    if (isPlatform("ios") == true) {
+      Dynamsoft.DWT.ResourcesPath = "https://unpkg.com/dwt@17.2.5/dist";
+    }
     Dynamsoft.DWT.Load();
   }, []);
 
