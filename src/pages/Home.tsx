@@ -8,7 +8,6 @@ import { RouteComponentProps } from "react-router";
 import Scanner from "../components/Scanner";
 import { ScanSettings } from "./Settings";
 import { AndroidPermissions } from '@awesome-cordova-plugins/android-permissions/';
-import { getPlatforms } from "@ionic/core";
 
 let scanners:string[] = [];
 let DWObject:WebTwain;
@@ -33,10 +32,11 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
         IfDuplexEnabled: settings.duplex,
         PixelType: settings.pixelType,
         Resolution: settings.resolution,
+        RemoteScan: true
       }
       setDeviceConfiguration(deviceConfig);
     }
-    
+
     const IP = localStorage.getItem("IP");
     if (IP) {
       setRemoteIP(IP);
@@ -53,7 +53,6 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
 
   useEffect(() => {
     console.log("on mount");
-    loadSettings();
     if (isPlatform("android")) {
       checkAndRequestCameraPermission();
     }
@@ -169,7 +168,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
          license="t0068dAAAAEi808f38Qi4z18MUrhsfNJ+UOug9kkM1lbZjOk51s6dnZAxWMisFml7l6ijQh/tot6A5ndw4T6JDlhJ+0lmR1s="
          remoteIP={remoteIP}
          deviceConfig={deviceConfiguration}
-         onWebTWAINReady={(dwt) =>{ DWObject = dwt }}
+         onWebTWAINReady={(dwt) =>{ DWObject = dwt; loadSettings(); }}
          onScannerListLoaded={onScannerListLoaded} 
          onScanned={() => setScan(false)} 
         />

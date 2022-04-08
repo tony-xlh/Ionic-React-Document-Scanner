@@ -40,7 +40,7 @@ const Scanner: React.FC<props> = (props: props) => {
         Host: props.remoteIP,
         Port: "18622",
         PortSSL: "18623",
-        UseLocalService: "false",
+        UseLocalService: "true",
       };
       Dynamsoft.DWT.CreateDWTObjectEx(
         dwtConfig,
@@ -194,7 +194,7 @@ const Scanner: React.FC<props> = (props: props) => {
 
   useEffect(() => {
     initializeDWObjectRemote();
-  }, [props.remoteIP]);
+  }, [props.remoteIP, props.deviceConfig]);
 
   useEffect(() => {
     if (props.download == true && DWObject) {
