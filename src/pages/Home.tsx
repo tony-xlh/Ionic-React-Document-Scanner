@@ -130,7 +130,8 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
               directory: Directory.Data
             })
             await Toast.show({
-              text: 'File is written to '+writingResult.uri,
+              text: "File is written to "+writingResult.uri,
+              duration: "long"
             });
           }
     
