@@ -227,7 +227,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
    <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle slot="start">Document Scanner</IonTitle>
+          <IonTitle slot="start">Docs Scan</IonTitle>
           <IonButtons slot="end">
             <IonButton onClick={showShareActionSheet} color="secondary">
               <IonIcon slot="icon-only"  icon={shareOutline} />
