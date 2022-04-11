@@ -148,7 +148,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
             let writingResult = await Filesystem.writeFile({
               path: getFormattedDate()+".pdf",
               data: result.getData(0,result.getLength()),
-              directory: Directory.Data
+              directory: Directory.External
             })
             await Toast.show({
               text: "File is written to "+writingResult.uri,

@@ -4,7 +4,6 @@
 	"webDir": "build",
 	"server": {
 		"hostname": "localhost",
-		"iosScheme": "http",
 		"androidScheme": "http",
 		"allowNavigation": [
 			"*"
