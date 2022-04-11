@@ -3,7 +3,7 @@ import Dynamsoft from 'mobile-web-capture';
 import { WebTwain } from "mobile-web-capture/dist/types/WebTwain";
 import { ScanConfiguration } from "mobile-web-capture/dist/types/Addon.Camera";
 import { DeviceConfiguration } from "mobile-web-capture/dist/types/WebTwain.Acquire";
-import { EditorSettings } from "mobile-web-capture/dist/types/WebTwain.Viewer";
+import { EditorSettings, ThumbnailViewer } from "mobile-web-capture/dist/types/WebTwain.Viewer";
 import { isPlatform } from "@ionic/react";
 
 interface props {
@@ -19,10 +19,12 @@ interface props {
   remoteIP?: string;
   scan?: boolean;
   showEditor?: boolean;
+  showCheckbox?: boolean;
 }
 
 let DWObject:WebTwain | undefined;
 let DWObjectRemote:WebTwain | undefined;
+let thumbnail:ThumbnailViewer | undefined;
 
 const Scanner: React.FC<props> = (props: props) => {
   const containerID = "dwtcontrolContainer";
@@ -139,7 +141,7 @@ const Scanner: React.FC<props> = (props: props) => {
         selectedPageBorder: "1px solid rgb(125,162,206)",
         selectedPageBackground: "rgb(199, 222, 252)"
     };
-    let thumbnail = DWObject.Viewer.createThumbnailViewer(thumbnailViewerSettings);
+    thumbnail = DWObject.Viewer.createThumbnailViewer(thumbnailViewerSettings);
     thumbnail.show();
   }
 
@@ -259,8 +261,6 @@ const Scanner: React.FC<props> = (props: props) => {
     if (props.showEditor == true) {
       if (DWObject) {
 
-
-        
         let settings:EditorSettings = {};
 
         let editorContainer = document.createElement("div");
@@ -280,6 +280,12 @@ const Scanner: React.FC<props> = (props: props) => {
       }
     }
   }, [props.showEditor]);
+
+  useEffect(() => {
+    if (thumbnail && props.showCheckbox != undefined) {
+      thumbnail.showCheckbox = props.showCheckbox;
+    }
+  }, [props.showCheckbox]);
 
   return (
     <div ref={container} id={containerID}></div>

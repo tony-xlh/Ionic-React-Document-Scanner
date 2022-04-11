@@ -22,6 +22,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [present, dismiss] = useIonActionSheet();
   const [scan,setScan] = useState(false);
   const [showEditor,setShowEditor] = useState(false);
+  const [showCheckbox,setShowCheckbox] = useState(false);
   const [remoteScan,setRemoteScan] = useState(false);
   const [remoteIP,setRemoteIP] = useState(""); // leave the value empty
   const [deviceConfiguration, setDeviceConfiguration] = useState<DeviceConfiguration|undefined>(undefined);
@@ -103,6 +104,10 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   }
 
   const showImageActionSheet = () => {
+    const toggleMultipleSelection = () => {
+      setShowCheckbox(!showCheckbox);
+    }
+
     const deleteSelected = () => {
       if (DWObject) {
         DWObject.RemoveAllSelectedImages();
@@ -120,7 +125,8 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     }
 
     present({
-      buttons: [{ text: 'Delete selected', handler: deleteSelected }, 
+      buttons: [{ text: 'Toggle multiple selection', handler: toggleMultipleSelection }, 
+                { text: 'Delete selected', handler: deleteSelected }, 
                 { text: 'Edit selected', handler: editSelected }, 
                 { text: 'Cancel' } ],
       header: 'Select an action'
@@ -263,6 +269,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
           deviceConfig={deviceConfiguration}
           onWebTWAINReady={(dwt) =>{ DWObject = dwt; loadSettings(); }}
           showEditor={showEditor}
+          showCheckbox={showCheckbox}
           onScannerListLoaded={onScannerListLoaded} 
           onScanned={(success) => {
             if (success == false) {
