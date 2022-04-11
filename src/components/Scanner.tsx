@@ -3,6 +3,7 @@ import Dynamsoft from 'mobile-web-capture';
 import { WebTwain } from "mobile-web-capture/dist/types/WebTwain";
 import { ScanConfiguration } from "mobile-web-capture/dist/types/Addon.Camera";
 import { DeviceConfiguration } from "mobile-web-capture/dist/types/WebTwain.Acquire";
+import { EditorSettings } from "mobile-web-capture/dist/types/WebTwain.Viewer";
 import { isPlatform } from "@ionic/react";
 
 interface props {
@@ -17,6 +18,7 @@ interface props {
   remoteScan?: boolean;
   remoteIP?: string;
   scan?: boolean;
+  showEditor?: boolean;
 }
 
 let DWObject:WebTwain | undefined;
@@ -25,7 +27,7 @@ let DWObjectRemote:WebTwain | undefined;
 const Scanner: React.FC<props> = (props: props) => {
   const containerID = "dwtcontrolContainer";
   
-  let container = useRef<HTMLDivElement>(null);
+  const container = useRef<HTMLDivElement>(null);
   
   const initializeDWObjectRemote = () => {
     Dynamsoft.DWT.DeleteDWTObject("remoteScan");
@@ -214,21 +216,19 @@ const Scanner: React.FC<props> = (props: props) => {
   useEffect(() => {
     if (props.scan == true) {
       if (DWObject) {
-        let cameraContainer:HTMLElement|null = document.getElementById("cameraContainer");
+        let cameraContainer = document.createElement("div");
+        cameraContainer.className = "fullscreen";
+        document.body.appendChild(cameraContainer);
 
         const funcConfirmExit = (bExistImage:boolean):boolean => {
           if (props.onCameraClosed) {
             props.onCameraClosed(true);
           }
-          
-          if (cameraContainer){
-            cameraContainer.style.display = "none";
-          }
-
+          cameraContainer.remove();
           return true;
         }
         let showVideoConfigs:ScanConfiguration = {
-          element: undefined,
+          element: cameraContainer,
           scannerViewer:{
             autoDetect:{
               enableAutoDetect: false
@@ -244,11 +244,6 @@ const Scanner: React.FC<props> = (props: props) => {
           }
         };
 
-        if (cameraContainer){
-          showVideoConfigs.element = cameraContainer as HTMLDivElement;
-          cameraContainer.style.display = "";
-        }
-
         DWObject.Addon.Camera.scanDocument(showVideoConfigs).then(
           function(){
             console.log("OK");
@@ -259,6 +254,32 @@ const Scanner: React.FC<props> = (props: props) => {
       }
     }
   }, [props.scan]);
+
+  useEffect(() => {
+    if (props.showEditor == true) {
+      if (DWObject) {
+
+
+        
+        let settings:EditorSettings = {};
+
+        let editorContainer = document.createElement("div");
+        editorContainer.className = "fullscreen";
+        document.body.appendChild(editorContainer);
+        settings.element = editorContainer as HTMLDivElement;
+        settings.width = "100%";
+        settings.height = "100%";
+
+        let imageEditor = DWObject.Viewer.createImageEditor(settings);
+        imageEditor.show();
+
+        const onImageEditorUIClosed = () => {
+          editorContainer.remove();
+        };
+        DWObject.RegisterEvent('CloseImageEditorUI', onImageEditorUIClosed);
+      }
+    }
+  }, [props.showEditor]);
 
   return (
     <div ref={container} id={containerID}></div>

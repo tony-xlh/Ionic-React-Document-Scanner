@@ -21,6 +21,7 @@ let DWObject:WebTwain;
 const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [present, dismiss] = useIonActionSheet();
   const [scan,setScan] = useState(false);
+  const [showEditor,setShowEditor] = useState(false);
   const [remoteScan,setRemoteScan] = useState(false);
   const [remoteIP,setRemoteIP] = useState(""); // leave the value empty
   const [deviceConfiguration, setDeviceConfiguration] = useState<DeviceConfiguration|undefined>(undefined);
@@ -110,8 +111,12 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
 
     const editSelected = () => {
       if (DWObject) {
-        DWObject.ShowImageEditor();
+        setShowEditor(true);
       }
+      const reset = () => {
+        setShowEditor(false);
+      }
+      setTimeout(reset,1000);
     }
 
     present({
@@ -248,6 +253,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
           remoteIP={remoteIP}
           deviceConfig={deviceConfiguration}
           onWebTWAINReady={(dwt) =>{ DWObject = dwt; loadSettings(); }}
+          showEditor={showEditor}
           onScannerListLoaded={onScannerListLoaded} 
           onScanned={(success) => {
             if (success == false) {
