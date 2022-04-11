@@ -13,6 +13,7 @@ import { Share } from '@capacitor/share';
 import { Capacitor } from "@capacitor/core";
 import { Toast } from '@capacitor/toast';
 import { Base64Result } from "mobile-web-capture/dist/types/WebTwain.IO";
+import "../styles/Scanner.css";
 
 let scanners:string[] = [];
 let DWObject:WebTwain;

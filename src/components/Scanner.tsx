@@ -214,10 +214,17 @@ const Scanner: React.FC<props> = (props: props) => {
   useEffect(() => {
     if (props.scan == true) {
       if (DWObject) {
+        let cameraContainer:HTMLElement|null = document.getElementById("cameraContainer");
+
         const funcConfirmExit = (bExistImage:boolean):boolean => {
           if (props.onCameraClosed) {
             props.onCameraClosed(true);
           }
+          
+          if (cameraContainer){
+            cameraContainer.style.display = "none";
+          }
+
           return true;
         }
         let showVideoConfigs:ScanConfiguration = {
@@ -236,6 +243,11 @@ const Scanner: React.FC<props> = (props: props) => {
             exitDocumentScanAfterSave: false
           }
         };
+
+        if (cameraContainer){
+          showVideoConfigs.element = cameraContainer as HTMLDivElement;
+          cameraContainer.style.display = "";
+        }
 
         DWObject.Addon.Camera.scanDocument(showVideoConfigs).then(
           function(){
