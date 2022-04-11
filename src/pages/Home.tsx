@@ -135,7 +135,17 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
 
   const loadFile = () => {
     if (DWObject) {
-      DWObject.LoadImageEx("", Dynamsoft.DWT.EnumDWT_ImageType.IT_ALL);
+      present({
+        buttons: 
+        [{ text: 'PDF', handler: () => {
+          DWObject.LoadImageEx("", Dynamsoft.DWT.EnumDWT_ImageType.IT_PDF);
+        } }, 
+        { text: 'Image', handler: () => {
+          DWObject.LoadImageEx("", Dynamsoft.DWT.EnumDWT_ImageType.IT_ALL);
+        }}, 
+        { text: 'Cancel' } ],
+        header: 'Select file type'
+      })
     }
   }
 
