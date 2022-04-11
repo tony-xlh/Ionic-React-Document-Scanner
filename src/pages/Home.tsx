@@ -1,5 +1,5 @@
 import { IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, isPlatform, useIonActionSheet, useIonToast } from "@ionic/react";
-import { cameraOutline, documentOutline,  ellipsisVerticalOutline,  settingsOutline, shareOutline } from 'ionicons/icons';
+import { cameraOutline, documentOutline,  ellipsisVerticalOutline,  imageOutline,  settingsOutline, shareOutline } from 'ionicons/icons';
 import Dynamsoft from 'mobile-web-capture';
 import { WebTwain } from "mobile-web-capture/dist/types/WebTwain";
 import { DeviceConfiguration } from "mobile-web-capture/dist/types/WebTwain.Acquire";
@@ -120,10 +120,19 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     }
 
     present({
-      buttons: [{ text: 'Delete selected', handler:deleteSelected }, { text: 'Edit selected', handler:editSelected }, { text: 'Cancel' } ],
+      buttons: [{ text: 'Delete selected', handler: deleteSelected }, 
+                { text: 'Edit selected', handler: editSelected }, 
+                { text: 'Cancel' } ],
       header: 'Select an action'
     })
   }
+
+  const loadFile = () => {
+    if (DWObject) {
+      DWObject.LoadImageEx("", Dynamsoft.DWT.EnumDWT_ImageType.IT_ALL);
+    }
+  }
+
   const showShareActionSheet = () => {
     const save = () => {
       if (DWObject) {
@@ -268,11 +277,14 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
           }} >
             <IonIcon icon={documentOutline} />
           </IonFabButton>
-          <IonFabButton onClick={() => {
+          <IonFabButton style={{marginRight:"10px"}} onClick={() => {
             setScan(true);
             resetScanStateDelayed();
           }} >
             <IonIcon icon={cameraOutline} />
+          </IonFabButton>
+          <IonFabButton onClick={loadFile} >
+            <IonIcon icon={imageOutline} />
           </IonFabButton>
         </IonFab>
         <IonFab style={{display:"flex"}} vertical="bottom" horizontal="end" slot="fixed">
@@ -280,6 +292,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
             <IonIcon icon={ellipsisVerticalOutline} />
           </IonFabButton>
         </IonFab>
+        
       </IonContent>
     </IonPage>
   );
