@@ -4,7 +4,7 @@ Ionic React Document Scanner using Dynamic Web TWAIN
 
 [Online demo](https://courageous-cactus-2758a1.netlify.app/)
 
-Sceenshot:
+Screenshot:
 
 ![home](./Home.jpg)
 
