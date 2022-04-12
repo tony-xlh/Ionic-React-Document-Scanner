@@ -2,7 +2,14 @@
 
 Ionic React Document Scanner using Dynamic Web TWAIN
 
-How to run:
+[Online demo](https://courageous-cactus-2758a1.netlify.app/)
+
+Sceenshot:
+
+![home](./Home.jpg)
+
+
+How to run it locally:
 
 1. Install Ionic according to its [docs](https://ionicframework.com/docs/intro/cli).
 2. Clone the project: 
@@ -18,3 +25,5 @@ How to run:
    ```
    ionic serve
    ```
+   
+   
