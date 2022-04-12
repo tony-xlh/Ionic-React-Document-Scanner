@@ -160,8 +160,25 @@ const Scanner: React.FC<props> = (props: props) => {
         Width: '300px',
         Height: '400px'
     }];
+    
+    const checkResourcesExists = () => {
+      var xhr = new XMLHttpRequest()
+      xhr.open('GET', 'Resources/src/dynamsoft.viewer.css',false)
+      xhr.send();
+      if (xhr.responseText.indexOf("dvs-ui") != -1) {
+        return true;
+      }else{
+        return false;
+      }
+    }
+    
+    const RemoteResourcesPath = "https://unpkg.com/dwt@17.2.5/dist";
     if (isPlatform("ios") == true) {
-      Dynamsoft.DWT.ResourcesPath = "https://unpkg.com/dwt@17.2.5/dist";
+      Dynamsoft.DWT.ResourcesPath = RemoteResourcesPath;
+    }else{
+      if (checkResourcesExists() == false) {
+        Dynamsoft.DWT.ResourcesPath = RemoteResourcesPath;
+      }
     }
     Dynamsoft.DWT.Load();
   }, []);
