@@ -281,6 +281,11 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
           showEditor={showEditor}
           showCheckbox={showCheckbox}
           onScannerListLoaded={onScannerListLoaded} 
+          onRemoteServiceConnected={(success) =>{
+            if (success == false) {
+              localStorage.removeItem("IP");
+            }
+          }}
           onScanned={(success) => {
             if (success == false) {
               alert("Failed. Please check your settings.");

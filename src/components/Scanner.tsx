@@ -7,11 +7,12 @@ import { EditorSettings, ThumbnailViewer } from "mobile-web-capture/dist/types/W
 import { isPlatform } from "@ionic/react";
 
 interface props {
-  license?:string,
+  license?:string;
   onWebTWAINReady?: (dwt:WebTwain) => void;
   onScannerListLoaded?: (list:string[]) => void;
   onScanned?: (success:boolean) => void;
   onCameraClosed?: (success:boolean) => void;
+  onRemoteServiceConnected?: (success:boolean) => void;
   width?: string|number;
   height?: string|number;
   deviceConfig?: DeviceConfiguration;
@@ -49,6 +50,9 @@ const Scanner: React.FC<props> = (props: props) => {
       Dynamsoft.DWT.CreateDWTObjectEx(
         dwtConfig,
         function (dwt) {
+          if (props.onRemoteServiceConnected) {
+            props.onRemoteServiceConnected(true);
+          }
           DWObjectRemote = dwt;
           bindDWObjects();
           console.log("service connected!");
@@ -70,7 +74,9 @@ const Scanner: React.FC<props> = (props: props) => {
         },
         function (error) {
           console.log(error);
-          localStorage.removeItem("IP");
+          if (props.onRemoteServiceConnected) {
+            props.onRemoteServiceConnected(false);
+          }
         }
       );
     }
