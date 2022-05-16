@@ -93,7 +93,7 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
         <IonList>
           <IonItemDivider>License</IonItemDivider>
           <IonItem>
-            <IonInput value={license} placeholder="a public license will be used if not set" onIonChange={e => setLicense(e.detail.value!)}></IonInput>
+            <IonInput value={license} placeholder="" onIonChange={e => setLicense(e.detail.value!)}></IonInput>
             <IonButton onClick={()=> (window.open("https://www.dynamsoft.com/customer/license/trialLicense?product=dwt"))}>Get a license</IonButton>
           </IonItem>
           <IonItemDivider>IP address</IonItemDivider>

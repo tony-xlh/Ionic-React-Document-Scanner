@@ -260,14 +260,8 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   }
 
   const renderScanner = () => {
-    const state = props.location.state as { settingsSaved:boolean };
-    let settingsSaved = false;
-    if (state && state.settingsSaved == true) {
-      settingsSaved = true;
-    }
-    
-    if (!license && settingsSaved === false ) { //if settings saved and license is still empty, use public license.
-      return "Please set a license in the settings.";
+    if (!license) {
+      return <p>Please set a license in the settings. Refresh may be needed to update a license.</p>;
     }else{
       return (
         <Scanner scan={scan} 
