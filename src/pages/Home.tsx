@@ -1,4 +1,4 @@
-import { IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar, isPlatform, useIonActionSheet, useIonToast } from "@ionic/react";
+import { IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonInput, IonItem, IonItemDivider, IonLabel, IonList, IonModal, IonPage, IonTitle, IonToolbar, isPlatform, useIonActionSheet, useIonToast } from "@ionic/react";
 import { cameraOutline, documentOutline,  ellipsisVerticalOutline,  imageOutline,  settingsOutline, shareOutline } from 'ionicons/icons';
 import Dynamsoft from 'mobile-web-capture';
 import { WebTwain } from "mobile-web-capture/dist/types/WebTwain";
@@ -14,6 +14,7 @@ import { Capacitor } from "@capacitor/core";
 import { Toast } from '@capacitor/toast';
 import { Base64Result } from "mobile-web-capture/dist/types/WebTwain.IO";
 import "../styles/Scanner.css";
+import ReactDOM from "react-dom";
 
 let scanners:string[] = [];
 let DWObject:WebTwain;
@@ -26,6 +27,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [remoteScan,setRemoteScan] = useState(false);
   const [remoteIP,setRemoteIP] = useState(""); // leave the value empty
   const [license,setLicense] = useState("");
+  const [usePublicTrial,setPublicTrial] = useState(false);
   const [deviceConfiguration, setDeviceConfiguration] = useState<DeviceConfiguration|undefined>(undefined);
 
   const loadSettings = () => {
@@ -260,11 +262,22 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   }
 
   const renderScanner = () => {
-    if (!license) {
-      return <p>Please set a license in the settings. Refresh may be needed to update a license.</p>;
+    if (!license && usePublicTrial === false) {
+
+      return (
+        <>
+          <ModalExample
+            setUsePublicTrial={(use) => {setPublicTrial(use)}}
+            setLicense={(license) => {setLicense(license)}}
+          ></ModalExample>
+          <p>Please set a license.</p>
+        </>
+        
+      );
     }else{
       return (
-        <Scanner scan={scan} 
+        <>
+          <Scanner scan={scan} 
             remoteScan={remoteScan} 
             width={"100%"} 
             height={"100%"} 
@@ -286,6 +299,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
               }
             }} 
           />
+        </>
       )
     }
     
@@ -330,11 +344,48 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
             <IonIcon icon={ellipsisVerticalOutline} />
           </IonFabButton>
         </IonFab>
-        
+
       </IonContent>
     </IonPage>
   );
   
 }
+
+interface Props{
+  setUsePublicTrial: (use:boolean) => void;
+  setLicense: (license:string) => void;
+}
+
+export const ModalExample: React.FC<Props> = (props:Props) => {
+  const [inputText,setInputText] = useState("");
+  return (
+    <>
+       <IonModal
+        isOpen={true}
+        breakpoints={[0.1, 0.5, 1]}
+        initialBreakpoint={0.5}
+        >
+          <IonContent>
+            <IonList>
+              <IonItemDivider>License</IonItemDivider>
+              <IonItem>
+               <IonInput value={inputText} placeholder="" onIonChange={e => setInputText(e.detail.value!)}></IonInput>
+               <IonButton onClick={()=> (window.open("https://www.dynamsoft.com/customer/license/trialLicense?product=dwt"))}>Get a license</IonButton>
+              </IonItem>
+              <IonButton expand="full" 
+              onClick={() => 
+              {  
+                localStorage.setItem("license",inputText);
+                props.setLicense(inputText);
+              }}>
+              Set
+              </IonButton>
+              <IonButton expand="full" onClick={() => props.setUsePublicTrial(true)}>Use public trial license</IonButton>
+            </IonList>
+          </IonContent>
+        </IonModal>
+    </>
+  );
+};
 
 export default Home;
