@@ -25,6 +25,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [showCheckbox,setShowCheckbox] = useState(false);
   const [remoteScan,setRemoteScan] = useState(false);
   const [remoteIP,setRemoteIP] = useState(""); // leave the value empty
+  const [license,setLicense] = useState("");
   const [deviceConfiguration, setDeviceConfiguration] = useState<DeviceConfiguration|undefined>(undefined);
 
   const loadSettings = () => {
@@ -45,6 +46,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     }
 
     const IP = localStorage.getItem("IP");
+   
     if (IP) {
       setRemoteIP(IP);
     }
@@ -68,7 +70,10 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   useEffect(() => {
     const state = props.location.state as { settingsSaved:boolean };
     console.log(state);
-
+    const previousLicense = localStorage.getItem("license");
+    if (previousLicense) {
+      setLicense(previousLicense);
+    }
     if (state && state.settingsSaved == true) {
       console.log(state.settingsSaved);
       loadSettings();
@@ -254,6 +259,44 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     })
   }
 
+  const renderScanner = () => {
+    const state = props.location.state as { settingsSaved:boolean };
+    let settingsSaved = false;
+    if (state && state.settingsSaved == true) {
+      settingsSaved = true;
+    }
+    
+    if (!license && settingsSaved === false ) { //if settings saved and license is still empty, use public license.
+      return "Please set a license in the settings.";
+    }else{
+      return (
+        <Scanner scan={scan} 
+            remoteScan={remoteScan} 
+            width={"100%"} 
+            height={"100%"} 
+            license={license}
+            remoteIP={remoteIP}
+            deviceConfig={deviceConfiguration}
+            onWebTWAINReady={(dwt) =>{ DWObject = dwt; loadSettings(); }}
+            showEditor={showEditor}
+            showCheckbox={showCheckbox}
+            onScannerListLoaded={onScannerListLoaded} 
+            onRemoteServiceConnected={(success) =>{
+              if (success == false) {
+                localStorage.removeItem("IP");
+              }
+            }}
+            onScanned={(success) => {
+              if (success == false) {
+                alert("Failed. Please check your settings.");
+              }
+            }} 
+          />
+      )
+    }
+    
+  }
+
   return (
    <IonPage>
       <IonHeader>
@@ -270,28 +313,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
         </IonToolbar>
       </IonHeader>
       <IonContent style={{ height: "100%" }}>
-        <Scanner scan={scan} 
-          remoteScan={remoteScan} 
-          width={"100%"} 
-          height={"100%"} 
-          license="t0068dAAAAEi808f38Qi4z18MUrhsfNJ+UOug9kkM1lbZjOk51s6dnZAxWMisFml7l6ijQh/tot6A5ndw4T6JDlhJ+0lmR1s="
-          remoteIP={remoteIP}
-          deviceConfig={deviceConfiguration}
-          onWebTWAINReady={(dwt) =>{ DWObject = dwt; loadSettings(); }}
-          showEditor={showEditor}
-          showCheckbox={showCheckbox}
-          onScannerListLoaded={onScannerListLoaded} 
-          onRemoteServiceConnected={(success) =>{
-            if (success == false) {
-              localStorage.removeItem("IP");
-            }
-          }}
-          onScanned={(success) => {
-            if (success == false) {
-              alert("Failed. Please check your settings.");
-            }
-          }} 
-        />
+        {renderScanner()}
         <IonFab style={{display:"flex"}} vertical="bottom" horizontal="start" slot="fixed">
           <IonFabButton style={{marginRight:"10px"}} onClick={() => {
             setRemoteScan(true);

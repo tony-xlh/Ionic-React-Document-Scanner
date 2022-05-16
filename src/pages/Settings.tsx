@@ -15,6 +15,7 @@ export interface ScanSettings{
 
 const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [IP, setIP] = useState<string>("");
+  const [license, setLicense] = useState<string>("");
   const [resolution, setResolution] = useState<number>(300);
   const [pixelType, setPixelType] = useState<number>(0);
   const [scanners, setScanners] = useState<string[]>([]);
@@ -37,6 +38,7 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
       setAutoFeeder(scanSettings.autoFeeder);
       setDuplex(scanSettings.duplex);
       setIP(localStorage.getItem("IP")!);
+      setLicense(localStorage.getItem("license")!);
       const updatePixelTypeRadio = () => {
         setPixelType(scanSettings.pixelType);
       }
@@ -61,6 +63,8 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     if (IP) {
       localStorage.setItem("IP",IP);
     }
+
+    localStorage.setItem("license",license);
     props.history.replace({state:{settingsSaved:true}});
     props.history.goBack();
   };
@@ -87,6 +91,11 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
       </IonHeader>
       <IonContent>
         <IonList>
+          <IonItemDivider>License</IonItemDivider>
+          <IonItem>
+            <IonInput value={license} placeholder="a public license will be used if not set" onIonChange={e => setLicense(e.detail.value!)}></IonInput>
+            <IonButton onClick={()=> (window.open("https://www.dynamsoft.com/customer/license/trialLicense?product=dwt"))}>Get a license</IonButton>
+          </IonItem>
           <IonItemDivider>IP address</IonItemDivider>
           <IonItem>
             <IonInput value={IP} placeholder="192.168.1.1" onIonChange={e => setIP(e.detail.value!)}></IonInput>
