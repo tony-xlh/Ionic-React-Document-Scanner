@@ -27,7 +27,10 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   useEffect(() => {
     console.log("settings mount");
     const state = props.location.state as { scanners:string[] };
-    setScanners(state.scanners);
+    if (state && state.scanners) {
+      setScanners(state.scanners);
+    }
+    
     let settingsAsJSON = localStorage.getItem("settings");
     let selectedIndex = 0;
     if (settingsAsJSON) {
@@ -44,9 +47,13 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
       }
       setTimeout(updatePixelTypeRadio,0);
     }
-    if (state.scanners.length>0) {
-      setSelectedScanner(state.scanners[selectedIndex]);
+
+    if (state && state.scanners) {
+      if (state.scanners.length>0) {
+        setSelectedScanner(state.scanners[selectedIndex]);
+      }
     }
+    
   }, []);
 
   const save = () =>{
