@@ -19,6 +19,7 @@ import ReactDOM from "react-dom";
 import { DocumentConfiguration } from "mobile-web-capture/dist/types/Addon.Camera";
 
 let scanners:Device[] = [];
+let currentURL = "";
 let DWObject:WebTwain;
 
 const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
@@ -49,7 +50,11 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
 
   const loadScanners = async (URL:string|null) => {
     if (URL) {
-      scanners = await Dynamsoft.DWT.FindDevicesAsync(URL);
+      if (currentURL != URL) {
+        scanners = await Dynamsoft.DWT.FindDevicesAsync(URL);
+        currentURL = URL;
+      }
+      
     }
   }
 
