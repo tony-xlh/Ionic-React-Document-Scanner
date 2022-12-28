@@ -53,12 +53,15 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
 
   const remoteScan = () => {
     if (DWObject) {
-      console.log(deviceConfiguration);
-      console.log(scanners);
       if (deviceConfiguration && deviceConfiguration.SelectSourceByIndex != undefined) {
         let scanner = scanners[deviceConfiguration.SelectSourceByIndex];
-        console.log(scanner);
-        scanner.acquireImage(deviceConfiguration,DWObject);
+        if (scanner) {
+          scanner.acquireImage(deviceConfiguration,DWObject);
+        }else{
+          alert("Scanner not available.");  
+        }
+      }else{
+        alert("Not configured.");
       }
     }
   }
