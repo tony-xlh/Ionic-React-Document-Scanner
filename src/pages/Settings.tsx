@@ -3,6 +3,8 @@ import { saveOutline } from "ionicons/icons";
 import { RouteComponentProps } from "react-router";
 import { useEffect, useState } from "react";
 import { Capacitor } from '@capacitor/core';
+import Dynamsoft from "mobile-web-capture";
+import { Device } from "mobile-web-capture/dist/types/WebTwain.Acquire";
 
 export interface ScanSettings{
   selectedIndex: number;
@@ -26,12 +28,7 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
 
   useEffect(() => {
     console.log("settings mount");
-    const state = props.location.state as { scanners:string[] };
-    if (state && state.scanners) {
-      setScanners(state.scanners);
-    }
-    
-    let settingsAsJSON = localStorage.getItem("settings");
+    let settingsAsJSON = localStorage.getItem("scanSettings");
     let selectedIndex = 0;
     if (settingsAsJSON) {
       const scanSettings: ScanSettings = JSON.parse(settingsAsJSON);
@@ -48,16 +45,19 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
       setTimeout(updatePixelTypeRadio,0);
     }
 
+    const state = props.location.state as { scanners:[] };
+
     if (state && state.scanners) {
-      if (state.scanners.length>0) {
+      setScanners(state.scanners);
+      if (selectedIndex>=0 && selectedIndex<state.scanners.length) {
         setSelectedScanner(state.scanners[selectedIndex]);
       }
     }
     
   }, []);
 
-  const save = () =>{
-    const selectedIndex = Math.max(0, scanners.indexOf(selectedScanner));
+  const save = () => {
+    let selectedIndex = scanners.indexOf(selectedScanner);
     let scanSettings: ScanSettings = {
       selectedIndex: selectedIndex,
       showUI: showUI,
@@ -66,15 +66,36 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
       resolution: resolution,
       pixelType: pixelType
     }
-    localStorage.setItem("settings",JSON.stringify(scanSettings));
+    localStorage.setItem("scanSettings",JSON.stringify(scanSettings));
     if (URL) {
       localStorage.setItem("URL",URL);
     }
 
     localStorage.setItem("license",license);
-    props.history.replace({state:{settingsSaved:true}});
+    props.history.replace({state:{settingsSaved:true,scanners:scanners}});
     props.history.goBack();
   };
+
+  const reloadScanners = async (selectedIndex?:number) => {
+    console.log("find devices from URL: "+URL);
+    let devices:Device[] = await Dynamsoft.DWT.FindDevicesAsync(URL);
+    console.log(devices);
+    let scannersList:string[] = [];
+    for (let index = 0; index < devices.length; index++) {
+      const device = devices[index];
+      scannersList.push(device.displayName);
+      if (selectedIndex) {
+        if (selectedIndex === index) {
+          setSelectedScanner(device.displayName);
+        }
+      }else{
+        if (index === 0) {
+          setSelectedScanner(device.displayName);
+        }
+      }
+    }
+    setScanners(scannersList);
+  }
 
   return (
     <IonPage>
@@ -101,6 +122,7 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
           <IonItemDivider>Proxy URL</IonItemDivider>
           <IonItem>
             <IonInput value={URL} placeholder="http://192.168.1.1" onIonChange={e => setURL(e.detail.value!)}></IonInput>
+            <IonButton onClick={() => reloadScanners()}>Reload</IonButton>
           </IonItem>
           <IonItem>
             <IonLabel>Scanner:</IonLabel>

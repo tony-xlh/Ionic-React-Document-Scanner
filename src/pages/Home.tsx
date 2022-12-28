@@ -2,7 +2,7 @@ import { IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, Ion
 import { cameraOutline, documentOutline,  ellipsisVerticalOutline,  imageOutline,  settingsOutline, shareOutline } from 'ionicons/icons';
 import Dynamsoft from 'mobile-web-capture';
 import { WebTwain } from "mobile-web-capture/dist/types/WebTwain";
-import { DeviceConfiguration } from "mobile-web-capture/dist/types/WebTwain.Acquire";
+import { Device, DeviceConfiguration } from "mobile-web-capture/dist/types/WebTwain.Acquire";
 import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import Scanner from "../components/Scanner";
@@ -16,7 +16,7 @@ import { Base64Result } from "mobile-web-capture/dist/types/WebTwain.IO";
 import "../styles/Scanner.css";
 import ReactDOM from "react-dom";
 
-let scanners:string[] = [];
+let scanners:Device[] = [];
 let DWObject:WebTwain;
 
 const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
@@ -27,7 +27,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [deviceConfiguration, setDeviceConfiguration] = useState<DeviceConfiguration|undefined>(undefined);
 
   const loadSettings = () => {
-    const settingsAsJSON = localStorage.getItem("settings");
+    const settingsAsJSON = localStorage.getItem("scanSettings");
     if (settingsAsJSON) {
       let settings:ScanSettings = JSON.parse(settingsAsJSON);
       let deviceConfig:DeviceConfiguration = {
@@ -42,8 +42,34 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
       }
       setDeviceConfiguration(deviceConfig);
     }
+    loadScanners(localStorage.getItem("URL"));
+  }
 
-    const URL = localStorage.getItem("URL");
+  const loadScanners = async (URL:string|null) => {
+    if (URL) {
+      scanners = await Dynamsoft.DWT.FindDevicesAsync(URL);
+    }
+  }
+
+  const remoteScan = () => {
+    if (DWObject) {
+      console.log(deviceConfiguration);
+      console.log(scanners);
+      if (deviceConfiguration && deviceConfiguration.SelectSourceByIndex != undefined) {
+        let scanner = scanners[deviceConfiguration.SelectSourceByIndex];
+        console.log(scanner);
+        scanner.acquireImage(deviceConfiguration,DWObject);
+      }
+    }
+  }
+
+  const getScannerNames = () => {
+    let scannerNames:string[] = [];
+    for (let index = 0; index < scanners.length; index++) {
+      const scanner = scanners[index];
+      scannerNames.push(scanner.displayName);
+    }
+    return scannerNames;
   }
 
   const loadLicense = () => {
@@ -93,14 +119,8 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     }
   }, [props.location.state]);
 
-  const onScannerListLoaded = (list:string[]) => {
-    console.log("onScannerListLoaded");
-    console.log(list);
-    scanners = list;
-  };
-
   const goToSettings = () => {
-    props.history.push("settings",{scanners:scanners});
+    props.history.push("settings",{scanners:getScannerNames()});
   }
 
   const getImageIndices = () => {
@@ -310,7 +330,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
         {renderScanner()}
         <IonFab style={{display:"flex"}} vertical="bottom" horizontal="start" slot="fixed">
           <IonFabButton style={{marginRight:"10px"}} onClick={() => {
-            console.log("placeholder");
+            remoteScan();
           }} >
             <IonIcon icon={documentOutline} />
           </IonFabButton>
