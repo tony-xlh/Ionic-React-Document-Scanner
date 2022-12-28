@@ -21,11 +21,7 @@ let DWObject:WebTwain;
 
 const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   const [present, dismiss] = useIonActionSheet();
-  const [scan,setScan] = useState(false);
-  const [showEditor,setShowEditor] = useState(false);
   const [showCheckbox,setShowCheckbox] = useState(false);
-  const [remoteScan,setRemoteScan] = useState(false);
-  const [remoteIP,setRemoteIP] = useState(""); // leave the value empty
   const [license,setLicense] = useState("");
   const [usePublicTrial,setUsePublicTrial] = useState(false);
   const [deviceConfiguration, setDeviceConfiguration] = useState<DeviceConfiguration|undefined>(undefined);
@@ -48,10 +44,6 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     }
 
     const IP = localStorage.getItem("IP");
-   
-    if (IP) {
-      setRemoteIP(IP);
-    }
   }
 
   const loadLicense = () => {
@@ -111,14 +103,6 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
     props.history.push("settings",{scanners:scanners});
   }
 
-  const resetScanStateDelayed = () => {
-    const reset = () => {
-      setScan(false);
-      setRemoteScan(false);
-    }
-    setTimeout(reset,1000);
-  }
-
   const getImageIndices = () => {
     var indices = [];
     if (DWObject) {
@@ -142,12 +126,9 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
 
     const editSelected = () => {
       if (DWObject) {
-        setShowEditor(true);
+        let documentEditor = DWObject.Viewer.createDocumentEditor();
+        documentEditor.show();
       }
-      const reset = () => {
-        setShowEditor(false);
-      }
-      setTimeout(reset,1000);
     }
 
     present({
@@ -279,6 +260,12 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
       header: 'Select an action'
     })
   }
+  
+  const startCamera = () => {
+    if (DWObject) {
+      DWObject.Addon.Camera.scanDocument();
+    }
+  }
 
   const renderScanner = () => {
     if (!license && usePublicTrial === false) {
@@ -291,15 +278,11 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
       console.log("use license: "+license);
       return (
         <>
-          <Scanner scan={scan} 
-            remoteScan={remoteScan} 
+          <Scanner 
             width={"100%"} 
             height={"100%"} 
             license={license}
-            remoteIP={remoteIP}
-            deviceConfig={deviceConfiguration}
             onWebTWAINReady={(dwt) =>{ DWObject = dwt; loadSettings(); }}
-            showEditor={showEditor}
             showCheckbox={showCheckbox}
             onScannerListLoaded={onScannerListLoaded} 
             onRemoteServiceConnected={(success) =>{
@@ -338,14 +321,12 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
         {renderScanner()}
         <IonFab style={{display:"flex"}} vertical="bottom" horizontal="start" slot="fixed">
           <IonFabButton style={{marginRight:"10px"}} onClick={() => {
-            setRemoteScan(true);
-            resetScanStateDelayed();
+            console.log("placeholder");
           }} >
             <IonIcon icon={documentOutline} />
           </IonFabButton>
           <IonFabButton style={{marginRight:"10px"}} onClick={() => {
-            setScan(true);
-            resetScanStateDelayed();
+            startCamera();
           }} >
             <IonIcon icon={cameraOutline} />
           </IonFabButton>
