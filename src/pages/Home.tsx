@@ -2,6 +2,7 @@ import { IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, Ion
 import { cameraOutline, documentOutline,  ellipsisVerticalOutline,  imageOutline,  settingsOutline, shareOutline } from 'ionicons/icons';
 import Dynamsoft from 'mobile-web-capture';
 import { WebTwain } from "mobile-web-capture/dist/types/WebTwain";
+import { DynamsoftEnumsDWT } from 'mobile-web-capture/dist/types/Dynamsoft.Enum';
 import { Device, DeviceConfiguration } from "mobile-web-capture/dist/types/WebTwain.Acquire";
 import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
@@ -15,6 +16,7 @@ import { Toast } from '@capacitor/toast';
 import { Base64Result } from "mobile-web-capture/dist/types/WebTwain.IO";
 import "../styles/Scanner.css";
 import ReactDOM from "react-dom";
+import { DocumentConfiguration } from "mobile-web-capture/dist/types/Addon.Camera";
 
 let scanners:Device[] = [];
 let DWObject:WebTwain;
@@ -149,7 +151,24 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
 
     const editSelected = () => {
       if (DWObject) {
-        let documentEditor = DWObject.Viewer.createDocumentEditor();
+        let container = document.createElement("div");
+        container.className = "fullscreen";
+        document.body.appendChild(container);
+        const funcConfirmExitAfterSave = () => {
+          container.remove();
+        };
+        const funcConfirmExit = (bChanged: boolean, previousViewerName: string):Promise<number | DynamsoftEnumsDWT.EnumDWT_ConfirmExitType> =>  {
+          container.remove();
+          return Promise.resolve(Dynamsoft.DWT.EnumDWT_ConfirmExitType.Exit);
+        };
+        let config:DocumentConfiguration = {
+          documentEditorSettings:{
+            element:container,
+            funcConfirmExit:funcConfirmExit,
+            funcConfirmExitAfterSave:funcConfirmExitAfterSave
+          }
+        };
+        let documentEditor = DWObject.Viewer.createDocumentEditor(config);
         documentEditor.show();
       }
     }
@@ -286,7 +305,31 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
   
   const startCamera = () => {
     if (DWObject) {
-      DWObject.Addon.Camera.scanDocument();
+      let container = document.createElement("div");
+      container.className = "fullscreen";
+      document.body.appendChild(container);
+
+      const funcConfirmExit = (bExistImage:boolean):Promise<boolean> => {
+        container.remove();
+        return Promise.resolve(true);
+      }
+
+      const funcConfirmExitAfterSave = () => {
+        container.remove();
+      };
+
+      let showVideoConfigs:DocumentConfiguration = {
+        scannerViewer:{
+          element: container,
+          continuousScan: false,
+          funcConfirmExit: funcConfirmExit,
+        },
+        documentEditorSettings:{
+          element:container,
+          funcConfirmExitAfterSave:funcConfirmExitAfterSave
+        }
+      };
+      DWObject.Addon.Camera.scanDocument(showVideoConfigs);
     }
   }
 
