@@ -2,22 +2,16 @@ import { useEffect, useRef } from "react";
 import Dynamsoft from 'mobile-web-capture';
 import { WebTwain } from "mobile-web-capture/dist/types/WebTwain";
 import { ThumbnailViewer } from "mobile-web-capture/dist/types/WebTwain.Viewer";
-import { isPlatform } from "@ionic/react";
 
 interface props {
   license?:string;
   onWebTWAINReady?: (dwt:WebTwain) => void;
-  onScannerListLoaded?: (list:string[]) => void;
-  onScanned?: (success:boolean) => void;
-  onCameraClosed?: (success:boolean) => void;
-  onRemoteServiceConnected?: (success:boolean) => void;
   width?: string|number;
   height?: string|number;
   showCheckbox?: boolean;
 }
 
 let DWObject:WebTwain | undefined;
-let DWObjectRemote:WebTwain | undefined;
 let thumbnail:ThumbnailViewer | undefined;
 
 const Scanner: React.FC<props> = (props: props) => {

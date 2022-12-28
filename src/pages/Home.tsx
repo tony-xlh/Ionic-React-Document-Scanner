@@ -284,17 +284,6 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
             license={license}
             onWebTWAINReady={(dwt) =>{ DWObject = dwt; loadSettings(); }}
             showCheckbox={showCheckbox}
-            onScannerListLoaded={onScannerListLoaded} 
-            onRemoteServiceConnected={(success) =>{
-              if (success == false) {
-                localStorage.removeItem("IP");
-              }
-            }}
-            onScanned={(success) => {
-              if (success == false) {
-                alert("Failed. Please check your settings.");
-              }
-            }} 
           />
         </>
       )
