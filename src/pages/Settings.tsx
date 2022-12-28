@@ -14,7 +14,7 @@ export interface ScanSettings{
 }
 
 const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
-  const [IP, setIP] = useState<string>("");
+  const [URL, setURL] = useState<string>("");
   const [license, setLicense] = useState<string>("");
   const [resolution, setResolution] = useState<number>(300);
   const [pixelType, setPixelType] = useState<number>(0);
@@ -40,7 +40,7 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
       setShowUI(scanSettings.showUI);
       setAutoFeeder(scanSettings.autoFeeder);
       setDuplex(scanSettings.duplex);
-      setIP(localStorage.getItem("IP")!);
+      setURL(localStorage.getItem("URL")!);
       setLicense(localStorage.getItem("license")!);
       const updatePixelTypeRadio = () => {
         setPixelType(scanSettings.pixelType);
@@ -67,19 +67,14 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
       pixelType: pixelType
     }
     localStorage.setItem("settings",JSON.stringify(scanSettings));
-    if (IP) {
-      localStorage.setItem("IP",IP);
+    if (URL) {
+      localStorage.setItem("URL",URL);
     }
 
     localStorage.setItem("license",license);
     props.history.replace({state:{settingsSaved:true}});
     props.history.goBack();
   };
-
-  const check = () =>{
-    const URL:string = "https://" + IP + ":18623";
-    window.open(URL);
-  }
 
   return (
     <IonPage>
@@ -103,12 +98,9 @@ const Settings: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
             <IonInput value={license} placeholder="" onIonChange={e => setLicense(e.detail.value!)}></IonInput>
             <IonButton onClick={()=> (window.open("https://www.dynamsoft.com/customer/license/trialLicense?product=dwt"))}>Get a license</IonButton>
           </IonItem>
-          <IonItemDivider>IP address</IonItemDivider>
+          <IonItemDivider>Proxy URL</IonItemDivider>
           <IonItem>
-            <IonInput value={IP} placeholder="192.168.1.1" onIonChange={e => setIP(e.detail.value!)}></IonInput>
-            {(Capacitor.isNativePlatform() == false) &&
-              <IonButton onClick={check}>Check</IonButton>
-            }
+            <IonInput value={URL} placeholder="http://192.168.1.1" onIonChange={e => setURL(e.detail.value!)}></IonInput>
           </IonItem>
           <IonItem>
             <IonLabel>Scanner:</IonLabel>

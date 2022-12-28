@@ -43,7 +43,7 @@ const Home: React.FC<RouteComponentProps> = (props:RouteComponentProps) => {
       setDeviceConfiguration(deviceConfig);
     }
 
-    const IP = localStorage.getItem("IP");
+    const URL = localStorage.getItem("URL");
   }
 
   const loadLicense = () => {
