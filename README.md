@@ -19,11 +19,19 @@ How to run it locally:
    ```
    
 3. cd Ionic-React-Document-Scanner & npm install
-4. Download [Dynamic Web TWAIN 17.2.5](https://www.dynamsoft.com/web-twain/downloads/) and put its `Resources` folder under `public`
 4. Run the app:
 
    ```
-   ionic serve
+   npm run start
    ```
+   
+5. Run for Android or iOS:
+
+   ```
+   npm run build
+   npx cap sync
+   ```
+   
+   Then use Android Studio or Xcode to open the project.
    
    
