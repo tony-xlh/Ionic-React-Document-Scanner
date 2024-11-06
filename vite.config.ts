@@ -14,5 +14,8 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/setupTests.ts',
+  },
+  optimizeDeps: {
+    exclude: ['js-big-decimal']
   }
 })
