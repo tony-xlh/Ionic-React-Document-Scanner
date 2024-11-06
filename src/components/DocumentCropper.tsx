@@ -5,6 +5,7 @@ import "./DocumentCropper.css";
 
 export interface DocumentCropperProps {
   docUid:string;
+  show:boolean;
 }
 
 const DocumentCropper: React.FC<DocumentCropperProps> = (props:DocumentCropperProps) => {
@@ -15,17 +16,35 @@ const DocumentCropper: React.FC<DocumentCropperProps> = (props:DocumentCropperPr
       initializing.current = true;
       initPerspectiveViewer();
     }
+    perspectiveViewer.current?.show();
+    return ()=>{
+      if (perspectiveViewer.current) {
+        perspectiveViewer.current.hide();
+      }
+    }
   },[])
+
+  useEffect(() => {
+    if (perspectiveViewer.current) {
+      if (props.show) {
+        perspectiveViewer.current.show();
+      }else{
+        perspectiveViewer.current.hide();
+      }
+      window.dispatchEvent(new Event('resize'));
+    }
+  }, [props.show]);
 
   const initPerspectiveViewer = async () => {    
     perspectiveViewer.current = new DDV.PerspectiveViewer({
-      container: "container"
+      container: "perspectiveViewer"
     });
     perspectiveViewer.current.openDocument(props.docUid);
+    perspectiveViewer.current.show();
   }
 
   return (
-    <div id="container"></div>
+    <div id="perspectiveViewer"></div>
   )
 };
 

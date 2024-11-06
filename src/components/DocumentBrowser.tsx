@@ -5,6 +5,7 @@ import "./DocumentBrowser.css";
 
 export interface DocumentBrowserProps {
   docUid:string;
+  show:boolean;
 }
 
 const DocumentBrowser: React.FC<DocumentBrowserProps> = (props:DocumentBrowserProps) => {
@@ -15,17 +16,34 @@ const DocumentBrowser: React.FC<DocumentBrowserProps> = (props:DocumentBrowserPr
       initializing.current = true;
       initBrowseViewer();
     }
+    browseViewer.current?.show();
+    return ()=>{
+      if (browseViewer.current) {
+        browseViewer.current.hide();
+      }
+    }
   },[])
+
+  useEffect(() => {
+    if (browseViewer.current) {
+      if (props.show) {
+        browseViewer.current.show();
+      }else{
+        browseViewer.current.hide();
+      }
+      window.dispatchEvent(new Event('resize'));
+    }
+  }, [props.show]);
 
   const initBrowseViewer = async () => {    
     browseViewer.current = new DDV.BrowseViewer({
-      container: "container"
+      container: "browseViewer"
     });
     browseViewer.current.openDocument(props.docUid);
   }
 
   return (
-    <div id="container"></div>
+    <div id="browseViewer"></div>
   )
 };
 
