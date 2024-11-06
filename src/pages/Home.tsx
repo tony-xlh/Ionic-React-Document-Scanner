@@ -33,6 +33,20 @@ const Home: React.FC = () => {
     setScanning(false);
   }
 
+  const onScanned = (base64:string) => {
+    setScanning(false);
+    loadImage(base64);
+  }
+
+  const loadImage = async (base64:string) => {
+    if (!base64.startsWith("data")) {
+      base64 = "data:image/jpeg;base64," + base64;
+    }
+    const response = await fetch(base64);
+    const blob = await response.blob();
+    doc.current?.loadSource(blob);
+  }
+
   return (
     <IonPage>
       {!scanning &&
@@ -52,7 +66,7 @@ const Home: React.FC = () => {
         }
         {scanning &&
           <div className="scanner fullscreen">
-            <DocumentScanner onStopped={stopScanning} ></DocumentScanner>
+            <DocumentScanner onStopped={stopScanning} onScanned={onScanned} ></DocumentScanner>
           </div>
         }
         <div className="footer">

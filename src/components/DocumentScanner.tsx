@@ -1,6 +1,6 @@
 import { MutableRefObject, useEffect, useRef, useState } from 'react';
 import './DocumentScanner.css';
-import { DocumentNormalizer } from 'capacitor-plugin-dynamsoft-document-normalizer';
+import { DocumentNormalizer, intersectionOverUnion } from 'capacitor-plugin-dynamsoft-document-normalizer';
 import { CameraPreview } from 'capacitor-plugin-camera';
 import { Capacitor, PluginListenerHandle } from '@capacitor/core';
 import { DetectedQuadResultItem } from 'dynamsoft-document-normalizer'
@@ -14,7 +14,7 @@ import {
 } from 'ionicons/icons';
 
 export interface DocumentScannerProps {
-  onScanned?: (detectedResult:DetectedQuadResultItem,imageBase64:string) => void;
+  onScanned?: (imageBase64:string) => void;
   onStopped?: () => void;
   onPlayed?: (result:{orientation:"LANDSCAPE"|"PORTRAIT",resolution:string}) => void;
 }
@@ -23,6 +23,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
   const container:MutableRefObject<HTMLDivElement|null> = useRef(null);
   const torchOn = useRef(false);
   const detecting = useRef(false);
+  const previousResults = useRef<DetectedQuadResultItem[]>([])
   const interval = useRef<any>();
   const onPlayedListener = useRef<PluginListenerHandle|undefined>();
   const [initialized,setInitialized] = useState(false);
@@ -109,9 +110,77 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
     detecting.current = false;
   }
 
+  const takePhotoAndStop = async () => {
+    stopScanning();
+    let detectAndNormalizationTemplate = "DetectAndNormalizeDocument_Color";
+    let normalizationResult;
+    if (Capacitor.isNativePlatform()) {
+      let path = (await CameraPreview.takePhoto({})).path;
+      normalizationResult = (await DocumentNormalizer.detectAndNormalize({path:path,includeBase64:true,template:detectAndNormalizationTemplate})).result.base64;
+    }else{
+      let detectAndNormalizationSource;
+      let photo = await CameraPreview.takePhoto({});
+      if (photo.blob) {
+        let img = await loadBlobAsImage(photo.blob);
+        detectAndNormalizationSource = img;
+      }else if (photo.base64) {
+        let dataURL = photo.base64;
+        if (!dataURL.startsWith("data")) {
+          dataURL = "data:image/jpeg;base64," + dataURL;
+        }
+        detectAndNormalizationSource = dataURL;
+      }
+      normalizationResult = (await DocumentNormalizer.detectAndNormalize({source:detectAndNormalizationSource,includeBase64:true,template:detectAndNormalizationTemplate})).result.base64;
+    }
+    if (props.onScanned && normalizationResult) {
+      props.onScanned(normalizationResult);
+    }
+  }
+
+  const loadBlobAsImage = (blob:Blob):Promise<HTMLImageElement> => {
+    return new Promise((resolve) => {
+      let img = document.createElement("img");
+      img.onload = function(){
+        resolve(img);
+      };
+      img.src = URL.createObjectURL(blob);
+    });
+  }
+
   const checkIfSteady = (results:DetectedQuadResultItem[]) => {
     console.log(results);
+    if (results.length>0) {
+      let result = results[0];
+      if (previousResults.current.length >= 3) {
+        if (steady() == true) {
+          console.log("steady");
+          takePhotoAndStop();
+        }else{
+          console.log("shift and add result");
+          previousResults.current.shift();
+          previousResults.current.push(result);
+        }
+      }else{
+        console.log("add result");
+        previousResults.current.push(result);
+      }
+    }
   }
+
+  const steady = () => {
+    if (previousResults.current[0] && previousResults.current[1] && previousResults.current[2]) {
+      let iou1 = intersectionOverUnion(previousResults.current[0].location.points,previousResults.current[1].location.points);
+      let iou2 = intersectionOverUnion(previousResults.current[1].location.points,previousResults.current[2].location.points);
+      let iou3 = intersectionOverUnion(previousResults.current[2].location.points,previousResults.current[0].location.points);
+      if (iou1>0.9 && iou2>0.9 && iou3>0.9) {
+        return true;
+      }else{
+        return false;
+      }
+    }
+    return false;
+  }
+  
 
 
   const switchCamera = async () => {
