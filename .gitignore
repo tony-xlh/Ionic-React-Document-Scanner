@@ -1,5 +1,5 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-public/Resources
+
 # dependencies
 /node_modules
 /.pnp
@@ -8,11 +8,8 @@ public/Resources
 # testing
 /coverage
 
-# dwt resources
-/public/assets/dwt-resources
-
 # production
-/build
+/dist
 
 # misc
 .DS_Store
@@ -20,7 +17,10 @@ public/Resources
 .env.development.local
 .env.test.local
 .env.production.local
-.vscode
+/.nx
+/.nx/cache
+/.vscode/*
+!/.vscode/extensions.json
 .idea
 
 npm-debug.log*
