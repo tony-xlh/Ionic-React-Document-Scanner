@@ -9,22 +9,29 @@ import DocumentScanner from '../components/DocumentScanner';
 
 const Home: React.FC = () => {
   const [initialized,setInitialized] = useState(false);
+  const initializing = useRef(false);
   const [scanning,setScanning] = useState(false);
   const doc = useRef<IDocument|undefined>();
   useEffect(()=>{
-    console.log("mounted");
     const init = async () => {
+      console.log("init DDV");
       const result = await initDDV();
       doc.current = DDV.documentManager.createDocument();
       setInitialized(result);
     }
-    init();
+    if (initializing.current === false) {
+      initializing.current = true;
+      init();
+    }
   },[])
 
   const startScanning = () => {
     setScanning(true);
   }
 
+  const stopScanning = () => {
+    setScanning(false);
+  }
 
   return (
     <IonPage>
@@ -45,7 +52,7 @@ const Home: React.FC = () => {
         }
         {scanning &&
           <div className="scanner fullscreen">
-            <DocumentScanner></DocumentScanner>
+            <DocumentScanner onStopped={stopScanning} ></DocumentScanner>
           </div>
         }
         <div className="footer">

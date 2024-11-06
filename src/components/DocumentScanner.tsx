@@ -4,19 +4,29 @@ import { DocumentNormalizer } from 'capacitor-plugin-dynamsoft-document-normaliz
 import { CameraPreview } from 'capacitor-plugin-camera';
 import { Capacitor, PluginListenerHandle } from '@capacitor/core';
 import { DetectedQuadResultItem } from 'dynamsoft-document-normalizer'
+import { IonFab, IonFabButton, IonIcon, IonFabList } from '@ionic/react';
+import {
+  chevronUpCircle,
+  flashlight,
+  closeCircle,
+  camera,
+  stop,
+} from 'ionicons/icons';
 
 export interface DocumentScannerProps {
-  torchOn?: boolean;
   onScanned?: (detectedResult:DetectedQuadResultItem,imageBase64:string) => void;
+  onStopped?: () => void;
   onPlayed?: (result:{orientation:"LANDSCAPE"|"PORTRAIT",resolution:string}) => void;
 }
 
 const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerProps) => {
   const container:MutableRefObject<HTMLDivElement|null> = useRef(null);
+  const torchOn = useRef(false);
   const detecting = useRef(false);
   const interval = useRef<any>();
   const onPlayedListener = useRef<PluginListenerHandle|undefined>();
   const [initialized,setInitialized] = useState(false);
+  const initializing = useRef(false);
   useEffect(() => {
     const init = async () => {
       if (container.current && Capacitor.isNativePlatform() === false) {
@@ -39,23 +49,40 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
       await CameraPreview.startCamera();
       setInitialized(true);
     }
-    init();
+    
+    if (initializing.current === false) {
+      initializing.current = true;
+      init();
+    }
+    
     return ()=>{
+      console.log("unmount and stop scan");
+      if (onPlayedListener.current) {
+        onPlayedListener.current.remove();
+      }
+      stopScanning();
       if (initialized) {
-        console.log("unmount and stop scan");
-        stopScanning();
         CameraPreview.stopCamera();
       }
     }
   }, []);
 
+  const stopCamera = () => {
+    if (props.onStopped) {
+      props.onStopped();
+    }
+  }
+
   const startScanning = () => {
     stopScanning();
-    interval.current = setInterval(captureAndDetect,100);
+    if (!interval.current) {
+      interval.current = setInterval(captureAndDetect,100);
+    }
   }
   
   const stopScanning = () => {
     clearInterval(interval.current);
+    interval.current = null;
   }
   
   const captureAndDetect = async () => {
@@ -69,9 +96,11 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
         await CameraPreview.saveFrame();
         results = (await DocumentNormalizer.detectBitmap({})).results;
       }else{
-        let video = container.current?.getElementsByTagName("video")[0] as any;
-        let response = await DocumentNormalizer.detect({source:video});
-        results = response.results;
+        if (container.current) {
+          let video = container.current.getElementsByTagName("video")[0] as any;
+          let response = await DocumentNormalizer.detect({source:video});
+          results = response.results;
+        }
       }
       checkIfSteady(results);
     } catch (error) {
@@ -85,19 +114,47 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
   }
 
 
-  useEffect(() => {
+  const switchCamera = async () => {
+    let currentCamera = (await CameraPreview.getSelectedCamera()).selectedCamera;
+    let result = await CameraPreview.getAllCameras();
+    let cameras = result.cameras;
+    let currentCameraIndex = cameras.indexOf(currentCamera);
+    let desiredIndex = 0
+    if (currentCameraIndex < cameras.length - 1) {
+      desiredIndex = currentCameraIndex + 1;
+    }
+    await CameraPreview.selectCamera({cameraID:cameras[desiredIndex]});
+  }
+
+  const toggleTorch = () => {
     if (initialized) {
-      if (props.torchOn === true) {
+      if (torchOn.current === true) {
         CameraPreview.toggleTorch({on:true});
       }else{
         CameraPreview.toggleTorch({on:false});
       }
     }
-  }, [props.torchOn]);
+  }
   
   return (
     <div className="container" ref={container}>
       <div className="dce-video-container"></div>
+      <IonFab slot="fixed" vertical="bottom" horizontal="end">
+          <IonFabButton>
+            <IonIcon icon={chevronUpCircle}></IonIcon>
+          </IonFabButton>
+          <IonFabList side="top">
+            <IonFabButton>
+              <IonIcon icon={stop} onClick={stopCamera}></IonIcon>
+            </IonFabButton>
+            <IonFabButton>
+              <IonIcon icon={camera} onClick={switchCamera}></IonIcon>
+            </IonFabButton>
+            <IonFabButton>
+              <IonIcon icon={flashlight} onClick={toggleTorch}></IonIcon>
+            </IonFabButton>
+          </IonFabList>
+        </IonFab>
     </div>
   );
 };
