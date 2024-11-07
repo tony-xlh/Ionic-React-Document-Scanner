@@ -10,6 +10,9 @@ import { ellipsisHorizontal, ellipsisVertical} from 'ionicons/icons';
 import DocumentEditor from '../components/DocumentEditor';
 import { OverlayEventDetail } from '@ionic/core';
 import { DetectedQuadResultItem } from 'dynamsoft-document-normalizer'
+import { Capacitor } from '@capacitor/core';
+import { Directory, Filesystem } from '@capacitor/filesystem';
+import { Share } from '@capacitor/share';
 
 const Home: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -107,10 +110,41 @@ const Home: React.FC = () => {
   const handleAction = (detail:OverlayEventDetail) => {
     console.log(detail);
     if (detail.data && detail.data.action != "cancel") {
-      setDisplayHeader(false);
-      setMode(detail.data.action);
+      if (detail.data.action === "download") {
+        downloadAsPDF();
+      }else{
+        setDisplayHeader(false);
+        setMode(detail.data.action);
+      }
     }
     setIsOpen(false);
+  }
+
+  const downloadAsPDF = async () => {
+    if (doc.current) {
+      let blob = await doc.current.saveToPdf();
+      if (Capacitor.isNativePlatform()) {
+        let fileName = "scanned.pdf";
+        let writingResult = await Filesystem.writeFile({
+          path: fileName,
+          data: blob,
+          directory: Directory.Cache
+        });
+        Share.share({
+          title: fileName,
+          text: fileName,
+          url: writingResult.uri,
+        });
+      }else{
+        const imageURL = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = imageURL;
+        link.download = 'scanned.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    }
   }
 
   return (
@@ -153,6 +187,12 @@ const Home: React.FC = () => {
               text: 'Crop',
               data: {
                 action: 'crop',
+              },
+            },
+            {
+              text: 'Download as PDF',
+              data: {
+                action: 'download',
               },
             },
             {
