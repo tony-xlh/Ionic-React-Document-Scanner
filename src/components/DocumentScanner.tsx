@@ -58,17 +58,16 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
     
     return ()=>{
       console.log("unmount and stop scan");
-      if (onPlayedListener.current) {
-        onPlayedListener.current.remove();
-      }
-      stopScanning();
-      if (initialized) {
-        CameraPreview.stopCamera();
-      }
+      stopCamera()
     }
   }, []);
 
-  const stopCamera = () => {
+  const stopCamera = async () => {
+    if (onPlayedListener.current) {
+      onPlayedListener.current.remove();
+    }
+    stopScanning();
+    await CameraPreview.stopCamera();
     if (props.onStopped) {
       props.onStopped();
     }
