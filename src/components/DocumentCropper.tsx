@@ -46,6 +46,13 @@ const DocumentCropper: React.FC<DocumentCropperProps> = (props:DocumentCropperPr
                 type: DDV.Elements.Layout,
                 className: "ddv-perspective-viewer-header-mobile",
                 children: [
+                    {
+                        type: DDV.Elements.Button,
+                        className: "ddv-button-back",
+                        events:{
+                            click: "back"
+                        }
+                    },
                     DDV.Elements.Pagination,
                     {   
                         // Bind event for "PerspectiveAll" button to show the edit viewer
@@ -74,6 +81,11 @@ const DocumentCropper: React.FC<DocumentCropperProps> = (props:DocumentCropperPr
     perspectiveViewer.current = new DDV.PerspectiveViewer({
       uiConfig: uiConfig,
       container: "perspectiveViewer"
+    });
+    perspectiveViewer.current.on("back" as any,() => {
+      if (props.onBack) {
+        props.onBack();
+      }
     });
     perspectiveViewer.current.on("okay" as any,() => {
       if (props.onBack) {
