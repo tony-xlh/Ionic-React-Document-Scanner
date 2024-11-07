@@ -15,6 +15,7 @@ import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 
 const Home: React.FC = () => {
+  const ionBackground = useRef("");
   const [isOpen, setIsOpen] = useState(false);
   const [initialized,setInitialized] = useState(false);
   const initializing = useRef(false);
@@ -34,14 +35,20 @@ const Home: React.FC = () => {
       initializing.current = true;
       init();
     }
+    ionBackground.current = document.documentElement.style.getPropertyValue('--ion-background-color');
+    return () => {
+      document.documentElement.style.setProperty('--ion-background-color', ionBackground.current);
+    }
   },[])
 
   const startScanning = () => {
+    document.documentElement.style.setProperty('--ion-background-color', 'transparent');
     setDisplayHeader(false);
     setScanning(true);
   }
 
   const stopScanning = () => {
+    document.documentElement.style.setProperty('--ion-background-color', ionBackground.current);
     setDisplayHeader(true);
     setScanning(false);
   }
@@ -99,7 +106,7 @@ const Home: React.FC = () => {
           <div className={"cropper fullscreen" + (displayCropper?"":" hidden")}>
             <DocumentCropper docUid={uid} show={displayCropper} onBack={returnToBrowseViewer} onInitialized={(viewer:PerspectiveViewer)=>{perspectiveViewer.current = viewer;}}></DocumentCropper>
           </div>
-          <div className={"browser" + (displayBrowser?"":" hidden")}>
+          <div className={"browser" + ((displayBrowser||scanning)?"":" hidden")}>
             <DocumentBrowser docUid={uid} show={displayBrowser}></DocumentBrowser>
           </div>
         </>
