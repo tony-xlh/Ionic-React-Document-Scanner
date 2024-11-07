@@ -103,7 +103,9 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
           results = response.results;
         }
       }
-      checkIfSteady(results);
+      if (results.length>0) {
+        checkIfSteady(results);
+      }
     } catch (error) {
       console.log(error);
     }
