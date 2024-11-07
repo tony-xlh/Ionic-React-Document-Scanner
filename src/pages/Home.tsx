@@ -13,6 +13,7 @@ import { DetectedQuadResultItem } from 'dynamsoft-document-normalizer'
 import { Capacitor } from '@capacitor/core';
 import { Directory, Filesystem } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
+import { DocumentNormalizer } from 'capacitor-plugin-dynamsoft-document-normalizer';
 
 const Home: React.FC = () => {
   const ionBackground = useRef("");
@@ -29,6 +30,12 @@ const Home: React.FC = () => {
       console.log("init DDV");
       const result = await initDDV();
       doc.current = DDV.documentManager.createDocument();
+      try {
+        await DocumentNormalizer.initLicense({license:"DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ=="});  
+      } catch (error) {
+        alert(error);
+        return; 
+      }
       setInitialized(result);
     }
     if (initializing.current === false) {
