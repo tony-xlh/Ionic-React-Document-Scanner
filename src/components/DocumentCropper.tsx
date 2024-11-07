@@ -56,11 +56,10 @@ const DocumentCropper: React.FC<DocumentCropperProps> = (props:DocumentCropperPr
                     },
                     DDV.Elements.Pagination,
                     {   
-                        // Bind event for "PerspectiveAll" button to show the edit viewer
-                        // The event will be registered later.
-                        type: DDV.Elements.PerspectiveAll,
+                        type: DDV.Elements.Button,
+                        className: "ddv-button-done",
                         events:{
-                            click: "okay"
+                            click: "apply"
                         }
                     },
                 ],
@@ -89,7 +88,11 @@ const DocumentCropper: React.FC<DocumentCropperProps> = (props:DocumentCropperPr
         props.onBack();
       }
     });
-    perspectiveViewer.current.on("okay" as any,() => {
+    perspectiveViewer.current.on("apply" as any,() => {
+      let quad = perspectiveViewer.current?.getQuadSelection();
+      if (quad) {
+        perspectiveViewer.current?.applyPerspective(quad);
+      }
       if (props.onBack) {
         props.onBack();
       }
