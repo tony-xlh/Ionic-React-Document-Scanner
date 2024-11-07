@@ -132,9 +132,10 @@ const Home: React.FC = () => {
       let blob = await doc.current.saveToPdf();
       if (Capacitor.isNativePlatform()) {
         let fileName = "scanned.pdf";
+        let dataURL = await blobToDataURL(blob);
         let writingResult = await Filesystem.writeFile({
           path: fileName,
-          data: blob,
+          data: dataURL,
           directory: Directory.Cache
         });
         Share.share({
@@ -152,6 +153,16 @@ const Home: React.FC = () => {
         document.body.removeChild(link);
       }
     }
+  }
+
+  const blobToDataURL = (blob:Blob):Promise<string> => {
+    return new Promise<string>((resolve) => {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        resolve(e.target!.result as string);
+      };
+      reader.readAsDataURL(blob);
+    })
   }
 
   return (
