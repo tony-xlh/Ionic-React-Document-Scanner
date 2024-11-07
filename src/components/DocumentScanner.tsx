@@ -12,11 +12,11 @@ import {
   camera,
   stop,
 } from 'ionicons/icons';
+import SVGOverlay from './SVGOverlay';
 
 export interface DocumentScannerProps {
   onScanned?: (blob:Blob,detectionResults:DetectedQuadResultItem[]) => void;
   onStopped?: () => void;
-  onPlayed?: (result:{orientation:"LANDSCAPE"|"PORTRAIT",resolution:string}) => void;
 }
 
 const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerProps) => {
@@ -28,6 +28,8 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
   const onPlayedListener = useRef<PluginListenerHandle|undefined>();
   const [initialized,setInitialized] = useState(false);
   const initializing = useRef(false);
+  const [quadResultItem,setQuadResultItem] = useState<DetectedQuadResultItem|undefined>()
+  const [viewBox,setViewBox] = useState("0 0 720 1280");
   useEffect(() => {
     const init = async () => {
       if (container.current && Capacitor.isNativePlatform() === false) {
@@ -41,11 +43,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
       }
       onPlayedListener.current = await CameraPreview.addListener("onPlayed", async () => {
         startScanning();
-        const orientation = (await CameraPreview.getOrientation()).orientation;
-        const resolution = (await CameraPreview.getResolution()).resolution;
-        if (props.onPlayed) {
-          props.onPlayed({orientation:orientation,resolution:resolution});
-        }
+        updateViewBox();
       });
       await CameraPreview.startCamera();
       setInitialized(true);
@@ -105,6 +103,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
         }
       }
       if (results.length>0) {
+        setQuadResultItem(results[0]);
         checkIfSteady(results);
       }
     } catch (error) {
@@ -212,10 +211,27 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
       CameraPreview.toggleTorch({on:torchOn.current});
     }
   }
+
+  const updateViewBox = async () => {
+    let res = (await CameraPreview.getResolution()).resolution;
+    let width = parseInt(res.split("x")[0]);
+    let height = parseInt(res.split("x")[1]);
+    let orientation = (await CameraPreview.getOrientation()).orientation;
+    let box:string;
+    if (orientation === "PORTRAIT") {
+      box = "0 0 "+height+" "+width;
+    }else{
+      box = "0 0 "+width+" "+height;
+    }
+    setViewBox(box);
+  }
   
   return (
     <div className="container" ref={container}>
       <div className="dce-video-container"></div>
+      {quadResultItem &&
+        <SVGOverlay viewBox={viewBox} quad={quadResultItem}></SVGOverlay>
+      }
       <IonFab slot="fixed" vertical="bottom" horizontal="end">
           <IonFabButton>
             <IonIcon icon={chevronUpCircle}></IonIcon>
