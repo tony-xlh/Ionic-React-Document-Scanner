@@ -208,11 +208,8 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
 
   const toggleTorch = () => {
     if (initialized) {
-      if (torchOn.current === true) {
-        CameraPreview.toggleTorch({on:true});
-      }else{
-        CameraPreview.toggleTorch({on:false});
-      }
+      torchOn.current = !torchOn.current;
+      CameraPreview.toggleTorch({on:torchOn.current});
     }
   }
   
