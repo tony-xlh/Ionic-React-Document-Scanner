@@ -2,7 +2,7 @@
 
 Ionic React Document Scanner using Dynamic Web TWAIN
 
-[Online demo](https://courageous-cactus-2758a1.netlify.app/)
+[Online demo](https://64409dbef68db00007d3ed9a--courageous-cactus-2758a1.netlify.app/)
 
 Screenshot:
 
