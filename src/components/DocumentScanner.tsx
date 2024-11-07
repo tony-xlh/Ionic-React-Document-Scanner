@@ -67,7 +67,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
       onPlayedListener.current.remove();
     }
     stopScanning();
-    if (initialized) {
+    if (initialized || Capacitor.isNativePlatform()) {
       await CameraPreview.stopCamera();
     }
     if (props.onStopped && manual) {
