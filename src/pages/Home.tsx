@@ -106,7 +106,7 @@ const Home: React.FC = () => {
           <div className={"cropper fullscreen" + (displayCropper?"":" hidden")}>
             <DocumentCropper docUid={uid} show={displayCropper} onBack={returnToBrowseViewer} onInitialized={(viewer:PerspectiveViewer)=>{perspectiveViewer.current = viewer;}}></DocumentCropper>
           </div>
-          <div className={"browser" + ((displayBrowser||scanning)?"":" hidden")}>
+          <div className={"browser" + ((displayBrowser && !scanning)?"":" hidden")}>
             <DocumentBrowser docUid={uid} show={displayBrowser}></DocumentBrowser>
           </div>
         </>
@@ -177,9 +177,11 @@ const Home: React.FC = () => {
             <DocumentScanner onStopped={stopScanning} onScanned={onScanned} ></DocumentScanner>
           </div>
         }
-        <div className="footer">
-          <button className="shutter-button round" onClick={startScanning}>Scan</button>
-        </div>
+        {!scanning &&
+          <div className="footer">
+            <button className="shutter-button round" onClick={startScanning}>Scan</button>
+          </div>
+        }
         <IonActionSheet
           isOpen={isOpen}
           header="Actions"
