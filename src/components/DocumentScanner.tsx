@@ -241,14 +241,14 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
             <IonIcon icon={chevronUpCircle}></IonIcon>
           </IonFabButton>
           <IonFabList side="top">
-            <IonFabButton>
-              <IonIcon icon={stop} onClick={()=>{stopCamera(true)}}></IonIcon>
+            <IonFabButton onClick={()=>{stopCamera(true)}}>
+              <IonIcon icon={stop}></IonIcon>
             </IonFabButton>
-            <IonFabButton>
-              <IonIcon icon={camera} onClick={switchCamera}></IonIcon>
+            <IonFabButton onClick={switchCamera}>
+              <IonIcon icon={camera}></IonIcon>
             </IonFabButton>
-            <IonFabButton>
-              <IonIcon icon={flashlight} onClick={toggleTorch}></IonIcon>
+            <IonFabButton onClick={toggleTorch}>
+              <IonIcon icon={flashlight}></IonIcon>
             </IonFabButton>
           </IonFabList>
         </IonFab>
