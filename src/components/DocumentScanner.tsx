@@ -56,19 +56,21 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
       init();
     }
     
-    return ()=>{
+    return ()=> {
       console.log("unmount and stop scan");
-      stopCamera()
+      stopCamera(false);
     }
   }, []);
 
-  const stopCamera = async () => {
+  const stopCamera = async (manual:boolean) => {
     if (onPlayedListener.current) {
       onPlayedListener.current.remove();
     }
     stopScanning();
-    await CameraPreview.stopCamera();
-    if (props.onStopped) {
+    if (initialized) {
+      await CameraPreview.stopCamera();
+    }
+    if (props.onStopped && manual) {
       props.onStopped();
     }
   }
@@ -223,7 +225,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
           </IonFabButton>
           <IonFabList side="top">
             <IonFabButton>
-              <IonIcon icon={stop} onClick={stopCamera}></IonIcon>
+              <IonIcon icon={stop} onClick={()=>{stopCamera(true)}}></IonIcon>
             </IonFabButton>
             <IonFabButton>
               <IonIcon icon={camera} onClick={switchCamera}></IonIcon>
