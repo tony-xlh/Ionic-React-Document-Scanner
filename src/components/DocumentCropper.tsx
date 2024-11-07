@@ -5,6 +5,7 @@ import "./DocumentCropper.css";
 
 export interface DocumentCropperProps {
   docUid:string;
+  groupUid:string;
   show:boolean;
   onInitialized?: (perspectiveViewer:PerspectiveViewer) => void;
   onBack?: () => void;
@@ -80,6 +81,7 @@ const DocumentCropper: React.FC<DocumentCropperProps> = (props:DocumentCropperPr
     };
     perspectiveViewer.current = new DDV.PerspectiveViewer({
       uiConfig: uiConfig,
+      groupUid: props.groupUid,
       container: "perspectiveViewer"
     });
     perspectiveViewer.current.on("back" as any,() => {

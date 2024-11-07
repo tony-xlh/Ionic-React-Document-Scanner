@@ -5,8 +5,10 @@ import "./DocumentEditor.css";
 
 export interface DocumentEditorProps {
   docUid:string;
+  groupUid:string;
   show:boolean;
   onBack?: () => void;
+  onInitialized?: (editViewer:EditViewer) => void;
 }
 
 const DocumentEditor: React.FC<DocumentEditorProps> = (props:DocumentEditorProps) => {
@@ -77,6 +79,7 @@ const DocumentEditor: React.FC<DocumentEditorProps> = (props:DocumentEditorProps
     // Create an edit viewer
     editViewer.current = new DDV.EditViewer({
       container: "editViewer",
+      groupUid: props.groupUid,
       uiConfig: config,
     });
     editViewer.current.on("back" as any,() => {

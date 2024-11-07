@@ -3,7 +3,7 @@ import './Home.css';
 import DocumentBrowser from '../components/DocumentBrowser';
 import { initDDV } from '../DDVUtils';
 import { useEffect, useRef, useState } from 'react';
-import { DDV, IDocument, PerspectiveViewer, Quad } from 'dynamsoft-document-viewer';
+import { DDV, EditViewer, IDocument, PerspectiveViewer, Quad } from 'dynamsoft-document-viewer';
 import DocumentCropper from '../components/DocumentCropper';
 import DocumentScanner from '../components/DocumentScanner';
 import { ellipsisHorizontal, ellipsisVertical} from 'ionicons/icons';
@@ -25,6 +25,7 @@ const Home: React.FC = () => {
   const [displayHeader,setDisplayHeader] = useState(true);
   const [mode,setMode] = useState<"browse"|"edit"|"crop">("browse")
   const doc = useRef<IDocument|undefined>();
+  const groupUid = useRef("ID");
   useEffect(()=>{
     const init = async () => {
       console.log("init DDV");
@@ -108,13 +109,28 @@ const Home: React.FC = () => {
       return (
         <>
           <div className={"editor fullscreen" + (displayEditor?"":" hidden")}>
-            <DocumentEditor docUid={uid} show={displayEditor} onBack={returnToBrowseViewer}></DocumentEditor>
+            <DocumentEditor 
+              docUid={uid} 
+              show={displayEditor} 
+              groupUid={groupUid.current}
+              onBack={returnToBrowseViewer}>
+            </DocumentEditor>
           </div>
           <div className={"cropper fullscreen" + (displayCropper?"":" hidden")}>
-            <DocumentCropper docUid={uid} show={displayCropper} onBack={returnToBrowseViewer} onInitialized={(viewer:PerspectiveViewer)=>{perspectiveViewer.current = viewer;}}></DocumentCropper>
+            <DocumentCropper 
+              docUid={uid}
+              groupUid={groupUid.current}
+              show={displayCropper} 
+              onBack={returnToBrowseViewer} 
+              onInitialized={(viewer:PerspectiveViewer)=>{perspectiveViewer.current = viewer;}}>
+            </DocumentCropper>
           </div>
           <div className={"browser" + ((displayBrowser && !scanning)?"":" hidden")}>
-            <DocumentBrowser docUid={uid} show={displayBrowser}></DocumentBrowser>
+            <DocumentBrowser 
+              docUid={uid} 
+              groupUid={groupUid.current}
+              show={displayBrowser}>
+            </DocumentBrowser>
           </div>
         </>
       )

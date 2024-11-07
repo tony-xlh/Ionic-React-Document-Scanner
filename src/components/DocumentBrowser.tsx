@@ -5,6 +5,7 @@ import "./DocumentBrowser.css";
 
 export interface DocumentBrowserProps {
   docUid:string;
+  groupUid:string;
   show:boolean;
 }
 
@@ -37,6 +38,7 @@ const DocumentBrowser: React.FC<DocumentBrowserProps> = (props:DocumentBrowserPr
 
   const initBrowseViewer = async () => {    
     browseViewer.current = new DDV.BrowseViewer({
+      groupUid: props.groupUid,
       container: "browseViewer"
     });
     browseViewer.current.openDocument(props.docUid);
