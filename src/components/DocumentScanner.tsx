@@ -14,7 +14,7 @@ import {
 } from 'ionicons/icons';
 
 export interface DocumentScannerProps {
-  onScanned?: (imageBase64:string) => void;
+  onScanned?: (blob:Blob,detectionResults:DetectedQuadResultItem[]) => void;
   onStopped?: () => void;
   onPlayed?: (result:{orientation:"LANDSCAPE"|"PORTRAIT",resolution:string}) => void;
 }
@@ -112,29 +112,36 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
 
   const takePhotoAndStop = async () => {
     stopScanning();
-    let detectAndNormalizationTemplate = "DetectAndNormalizeDocument_Color";
-    let normalizationResult;
+    let blob:Blob|undefined;
+    let detectionResults:DetectedQuadResultItem[] = [];
     if (Capacitor.isNativePlatform()) {
-      let path = (await CameraPreview.takePhoto({})).path;
-      normalizationResult = (await DocumentNormalizer.detectAndNormalize({path:path,includeBase64:true,template:detectAndNormalizationTemplate})).result.base64;
+      let photo = await CameraPreview.takePhoto({includeBase64:true});
+      blob = await getBlobFromBase64(photo.base64!);
+      detectionResults = (await DocumentNormalizer.detect({path:photo.path})).results;
     }else{
-      let detectAndNormalizationSource;
       let photo = await CameraPreview.takePhoto({});
+      console.log(photo);
       if (photo.blob) {
-        let img = await loadBlobAsImage(photo.blob);
-        detectAndNormalizationSource = img;
+        blob = photo.blob;
       }else if (photo.base64) {
-        let dataURL = photo.base64;
-        if (!dataURL.startsWith("data")) {
-          dataURL = "data:image/jpeg;base64," + dataURL;
-        }
-        detectAndNormalizationSource = dataURL;
+        blob = await getBlobFromBase64(photo.base64);
       }
-      normalizationResult = (await DocumentNormalizer.detectAndNormalize({source:detectAndNormalizationSource,includeBase64:true,template:detectAndNormalizationTemplate})).result.base64;
+      let img = await loadBlobAsImage(blob!);
+      console.log(img);
+      detectionResults = (await DocumentNormalizer.detect({source:img})).results;
     }
-    if (props.onScanned && normalizationResult) {
-      props.onScanned(normalizationResult);
+    if (props.onScanned && blob && detectionResults) {
+      props.onScanned(blob,detectionResults);
     }
+  }
+
+  const getBlobFromBase64 = async (base64:string):Promise<Blob> => {
+    if (!base64.startsWith("data")) {
+      base64 = "data:image/jpeg;base64," + base64;
+    }
+    const response = await fetch(base64);
+    const blob = await response.blob();
+    return blob;
   }
 
   const loadBlobAsImage = (blob:Blob):Promise<HTMLImageElement> => {

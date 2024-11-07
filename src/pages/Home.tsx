@@ -3,17 +3,19 @@ import './Home.css';
 import DocumentBrowser from '../components/DocumentBrowser';
 import { initDDV } from '../DDVUtils';
 import { useEffect, useRef, useState } from 'react';
-import { DDV, IDocument } from 'dynamsoft-document-viewer';
+import { DDV, IDocument, PerspectiveViewer, Quad } from 'dynamsoft-document-viewer';
 import DocumentCropper from '../components/DocumentCropper';
 import DocumentScanner from '../components/DocumentScanner';
 import { ellipsisHorizontal, ellipsisVertical} from 'ionicons/icons';
 import DocumentEditor from '../components/DocumentEditor';
 import { OverlayEventDetail } from '@ionic/core';
+import { DetectedQuadResultItem } from 'dynamsoft-document-normalizer'
 
 const Home: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [initialized,setInitialized] = useState(false);
   const initializing = useRef(false);
+  const perspectiveViewer = useRef<PerspectiveViewer|undefined>();
   const [scanning,setScanning] = useState(false);
   const [displayHeader,setDisplayHeader] = useState(true);
   const [mode,setMode] = useState<"browse"|"edit"|"crop">("browse")
@@ -41,19 +43,37 @@ const Home: React.FC = () => {
     setScanning(false);
   }
 
-  const onScanned = (base64:string) => {
+  const onScanned = async (blob:Blob,detectionResults:DetectedQuadResultItem[]) => {
     stopScanning();
-    loadImage(base64);
+    await doc.current?.loadSource(blob);
+    showCropper(detectionResults);
   }
 
-  const loadImage = async (base64:string) => {
-    if (!base64.startsWith("data")) {
-      base64 = "data:image/jpeg;base64," + base64;
+  const showCropper = (detectionResults?:DetectedQuadResultItem[]) => {
+    setDisplayHeader(false);
+    setMode("crop");
+    console.log(detectionResults);
+    if (detectionResults && perspectiveViewer.current && doc.current) {
+      if (detectionResults.length>0) {
+        let result = detectionResults[0];
+        let points = result.location.points;
+        let quad:Quad = [
+          [points[0].x,points[0].y],
+          [points[1].x,points[1].y],
+          [points[2].x,points[2].y],
+          [points[3].x,points[3].y]
+        ];
+        perspectiveViewer.current.setQuadSelection(quad);
+        perspectiveViewer.current.goToPage(doc.current.pages.length - 1)
+      }
     }
-    const response = await fetch(base64);
-    const blob = await response.blob();
-    doc.current?.loadSource(blob);
   }
+
+  const returnToBrowseViewer = () => {
+    setDisplayHeader(true);
+    setMode("browse");
+  }
+
 
   const renderViewers = () => {
     if (initialized && doc.current) {
@@ -71,10 +91,10 @@ const Home: React.FC = () => {
       return (
         <>
           <div className={"editor fullscreen" + (displayEditor?"":" hidden")}>
-            <DocumentEditor docUid={uid} show={displayEditor}></DocumentEditor>
+            <DocumentEditor docUid={uid} show={displayEditor} onBack={returnToBrowseViewer}></DocumentEditor>
           </div>
           <div className={"cropper fullscreen" + (displayCropper?"":" hidden")}>
-            <DocumentCropper docUid={uid} show={displayCropper}></DocumentCropper>
+            <DocumentCropper docUid={uid} show={displayCropper} onBack={returnToBrowseViewer} onInitialized={(viewer:PerspectiveViewer)=>{perspectiveViewer.current = viewer;}}></DocumentCropper>
           </div>
           <div className={"browser" + (displayBrowser?"":" hidden")}>
             <DocumentBrowser docUid={uid} show={displayBrowser}></DocumentBrowser>

@@ -6,6 +6,7 @@ import "./DocumentEditor.css";
 export interface DocumentEditorProps {
   docUid:string;
   show:boolean;
+  onBack?: () => void;
 }
 
 const DocumentEditor: React.FC<DocumentEditorProps> = (props:DocumentEditorProps) => {
@@ -36,11 +37,52 @@ const DocumentEditor: React.FC<DocumentEditorProps> = (props:DocumentEditorProps
   }, [props.show]);
 
   const initEditViewer = async () => {    
-    const config = DDV.getDefaultUiConfig("editViewer", {includeAnnotationSet: true}) as UiConfig;
+    const config:UiConfig = {
+        type: DDV.Elements.Layout,
+        flexDirection: "column",
+        className: "ddv-edit-viewer-mobile",
+        children: [
+            {
+                type: DDV.Elements.Layout,
+                className: "ddv-edit-viewer-header-mobile",
+                children: [
+                    {
+                        // Add a "Back" buttom to header and bind click event to go back to the perspective viewer
+                        // The event will be registered later.
+                        type: DDV.Elements.Button,
+                        className: "ddv-button-back",
+                        events:{
+                            click: "back"
+                        }
+                    },
+                    DDV.Elements.Pagination
+                ],
+            },
+            DDV.Elements.MainView,
+            {
+                type: DDV.Elements.Layout,
+                className: "ddv-edit-viewer-footer-mobile",
+                children: [
+                    DDV.Elements.DisplayMode,
+                    DDV.Elements.RotateLeft,
+                    DDV.Elements.Crop,
+                    DDV.Elements.Filter,
+                    DDV.Elements.Undo,
+                    DDV.Elements.Delete,
+                    DDV.Elements.Load,
+                ],
+            },
+        ],
+    };
     // Create an edit viewer
     editViewer.current = new DDV.EditViewer({
       container: "editViewer",
       uiConfig: config,
+    });
+    editViewer.current.on("back" as any,() => {
+      if (props.onBack) {
+        props.onBack();
+      }
     });
     editViewer.current.openDocument(props.docUid);
   }
