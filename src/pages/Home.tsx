@@ -66,8 +66,8 @@ const Home: React.FC = () => {
           [points[2].x,points[2].y],
           [points[3].x,points[3].y]
         ];
-        perspectiveViewer.current.setQuadSelection(quad);
         perspectiveViewer.current.goToPage(doc.current.pages.length - 1)
+        perspectiveViewer.current.setQuadSelection(quad);
       }
     }
   }
