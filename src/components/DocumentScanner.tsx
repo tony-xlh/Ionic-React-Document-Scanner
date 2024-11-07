@@ -42,8 +42,9 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
         onPlayedListener.current.remove();
       }
       onPlayedListener.current = await CameraPreview.addListener("onPlayed", async () => {
+        console.log("played");
+        await updateViewBox();
         startScanning();
-        updateViewBox();
       });
       await CameraPreview.startCamera();
       setInitialized(true);
@@ -223,6 +224,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
     }else{
       box = "0 0 "+width+" "+height;
     }
+    console.log(box);
     setViewBox(box);
   }
   
