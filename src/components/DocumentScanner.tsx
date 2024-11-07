@@ -106,6 +106,8 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
       if (results.length>0) {
         setQuadResultItem(results[0]);
         checkIfSteady(results);
+      }else{
+        setQuadResultItem(undefined);
       }
     } catch (error) {
       console.log(error);
