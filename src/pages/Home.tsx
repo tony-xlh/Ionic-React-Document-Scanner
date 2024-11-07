@@ -1,7 +1,6 @@
 import { IonActionSheet, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import './Home.css';
 import DocumentBrowser from '../components/DocumentBrowser';
-import { initDDV } from '../DDVUtils';
 import { useEffect, useRef, useState } from 'react';
 import { DDV, EditViewer, IDocument, PerspectiveViewer, Quad } from 'dynamsoft-document-viewer';
 import DocumentCropper from '../components/DocumentCropper';
@@ -28,16 +27,20 @@ const Home: React.FC = () => {
   const groupUid = useRef("ID");
   useEffect(()=>{
     const init = async () => {
-      console.log("init DDV");
-      const result = await initDDV();
-      doc.current = DDV.documentManager.createDocument();
+      console.log("init DDV and DDN");
       try {
+        DDV.Core.license = "DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ=="; // Public trial license which is valid for 24 hours
+        DDV.Core.engineResourcePath = "assets/ddv-resources/engine";// Lead to a folder containing the distributed WASM files
+        await DDV.Core.loadWasm();
+        await DDV.Core.init(); 
+        // Configure image filter feature which is in edit viewer
+        DDV.setProcessingHandler("imageFilter", new DDV.ImageFilter());
         await DocumentNormalizer.initLicense({license:"DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ=="});  
+        doc.current = DDV.documentManager.createDocument();
+        setInitialized(true);
       } catch (error) {
         alert(error);
-        return; 
       }
-      setInitialized(result);
     }
     if (initializing.current === false) {
       initializing.current = true;
