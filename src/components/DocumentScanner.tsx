@@ -120,6 +120,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
       let photo = await CameraPreview.takePhoto({includeBase64:true});
       blob = await getBlobFromBase64(photo.base64!);
       detectionResults = (await DocumentNormalizer.detect({path:photo.path})).results;
+      console.log(detectionResults);
     }else{
       let photo = await CameraPreview.takePhoto({});
       console.log(photo);
