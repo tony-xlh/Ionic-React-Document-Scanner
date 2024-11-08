@@ -222,7 +222,11 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
     let orientation = (await CameraPreview.getOrientation()).orientation;
     let box:string;
     if (orientation === "PORTRAIT") {
-      box = "0 0 "+height+" "+width;
+      if (!Capacitor.isNativePlatform()) {
+        box = "0 0 "+width+" "+height;
+      }else{
+        box = "0 0 "+height+" "+width;
+      }
     }else{
       box = "0 0 "+width+" "+height;
     }
