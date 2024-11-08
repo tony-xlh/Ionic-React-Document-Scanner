@@ -119,7 +119,7 @@ const Home: React.FC = () => {
       }
       return (
         <>
-          <div className={"editor fullscreen" + (displayEditor?"":" hidden")}>
+          <div className={"editor fullscreen" + ((displayEditor && !scanning)?"":" hidden")}>
             <DocumentEditor 
               docUid={uid} 
               show={displayEditor} 
