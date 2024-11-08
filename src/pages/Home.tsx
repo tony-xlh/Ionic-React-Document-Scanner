@@ -1,4 +1,4 @@
-import { IonActionSheet, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonActionSheet, IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonLoading, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import './Home.css';
 import DocumentBrowser from '../components/DocumentBrowser';
 import { useEffect, useRef, useState } from 'react';
@@ -208,6 +208,7 @@ const Home: React.FC = () => {
         </>
       }
       <IonContent fullscreen>
+        <IonLoading isOpen={!initialized} message="Loading..." />
         {renderViewers()}
         {scanning &&
           <div className="scanner fullscreen">

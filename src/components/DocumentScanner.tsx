@@ -4,7 +4,7 @@ import { DocumentNormalizer, intersectionOverUnion } from 'capacitor-plugin-dyna
 import { CameraPreview } from 'capacitor-plugin-camera';
 import { Capacitor, PluginListenerHandle } from '@capacitor/core';
 import { DetectedQuadResultItem } from 'dynamsoft-document-normalizer'
-import { IonFab, IonFabButton, IonIcon, IonFabList } from '@ionic/react';
+import { IonFab, IonFabButton, IonIcon, IonFabList, IonLoading } from '@ionic/react';
 import {
   chevronUpCircle,
   flashlight,
@@ -236,6 +236,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
   
   return (
     <div className="container" ref={container}>
+      <IonLoading isOpen={!initialized} message="Loading..." />
       <div className="dce-video-container"></div>
       {quadResultItem &&
         <SVGOverlay viewBox={viewBox} quad={quadResultItem}></SVGOverlay>
