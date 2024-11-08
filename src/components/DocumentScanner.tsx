@@ -32,21 +32,25 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
   const [viewBox,setViewBox] = useState("0 0 720 1280");
   useEffect(() => {
     const init = async () => {
-      if (container.current && Capacitor.isNativePlatform() === false) {
-        await CameraPreview.setElement(container.current);
+      try {
+        if (container.current && Capacitor.isNativePlatform() === false) {
+          await CameraPreview.setElement(container.current);
+        }
+        await CameraPreview.initialize();
+        await CameraPreview.requestCameraPermission();
+        await DocumentNormalizer.initialize();
+        if (onPlayedListener.current) {
+          onPlayedListener.current.remove();
+        }
+        onPlayedListener.current = await CameraPreview.addListener("onPlayed", async () => {
+          console.log("played");
+          await updateViewBox();
+          startScanning();
+        });
+        await CameraPreview.startCamera();
+      } catch (error) {
+        alert(error);
       }
-      await CameraPreview.initialize();
-      await CameraPreview.requestCameraPermission();
-      await DocumentNormalizer.initialize();
-      if (onPlayedListener.current) {
-        onPlayedListener.current.remove();
-      }
-      onPlayedListener.current = await CameraPreview.addListener("onPlayed", async () => {
-        console.log("played");
-        await updateViewBox();
-        startScanning();
-      });
-      await CameraPreview.startCamera();
       setInitialized(true);
     }
     
