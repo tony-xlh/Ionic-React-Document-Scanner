@@ -8,9 +8,8 @@ import { IonFab, IonFabButton, IonIcon, IonFabList, IonLoading } from '@ionic/re
 import {
   chevronUpCircle,
   flashlight,
-  closeCircle,
-  camera,
   stop,
+  cameraReverse,
 } from 'ionicons/icons';
 import SVGOverlay from './SVGOverlay';
 
@@ -254,7 +253,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
               <IonIcon icon={stop}></IonIcon>
             </IonFabButton>
             <IonFabButton onClick={switchCamera}>
-              <IonIcon icon={camera}></IonIcon>
+              <IonIcon icon={cameraReverse}></IonIcon>
             </IonFabButton>
             <IonFabButton onClick={toggleTorch}>
               <IonIcon icon={flashlight}></IonIcon>
