@@ -61,7 +61,9 @@ const Home: React.FC = () => {
 
   const stopScanning = () => {
     document.documentElement.style.setProperty('--ion-background-color', ionBackground.current);
-    setDisplayHeader(true);
+    if (stayInEditViewer.current === false) {
+      setDisplayHeader(true);
+    }
     setScanning(false);
   }
 
