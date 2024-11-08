@@ -26,6 +26,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
   const interval = useRef<any>();
   const onPlayedListener = useRef<PluginListenerHandle|undefined>();
   const [initialized,setInitialized] = useState(false);
+  const initializedRef = useRef(false);
   const initializing = useRef(false);
   const [quadResultItem,setQuadResultItem] = useState<DetectedQuadResultItem|undefined>()
   const [viewBox,setViewBox] = useState("0 0 720 1280");
@@ -50,6 +51,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
       } catch (error) {
         alert(error);
       }
+      initializedRef.current = true;
       setInitialized(true);
     }
     
@@ -69,7 +71,8 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
       onPlayedListener.current.remove();
     }
     stopScanning();
-    if (initialized || Capacitor.isNativePlatform()) {
+    if (initializedRef.current || Capacitor.isNativePlatform()) {
+      console.log("stop camera");
       await CameraPreview.stopCamera();
     }
     if (props.onStopped && manual) {
@@ -139,6 +142,7 @@ const DocumentScanner: React.FC<DocumentScannerProps> = (props:DocumentScannerPr
       console.log(img);
       detectionResults = (await DocumentNormalizer.detect({source:img})).results;
     }
+    //await stopCamera(false);
     if (props.onScanned && blob && detectionResults) {
       props.onScanned(blob,detectionResults);
     }
