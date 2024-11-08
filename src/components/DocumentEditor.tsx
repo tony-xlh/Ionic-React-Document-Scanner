@@ -8,6 +8,7 @@ export interface DocumentEditorProps {
   groupUid:string;
   show:boolean;
   onBack?: () => void;
+  onScanRequired?: () => void;
   onInitialized?: (editViewer:EditViewer) => void;
 }
 
@@ -57,7 +58,16 @@ const DocumentEditor: React.FC<DocumentEditorProps> = (props:DocumentEditorProps
                             click: "back"
                         }
                     },
-                    DDV.Elements.Pagination
+                    DDV.Elements.Pagination,
+                    {
+                      // Add a "Back" buttom to header and bind click event to go back to the perspective viewer
+                      // The event will be registered later.
+                      type: DDV.Elements.Button,
+                      className: "camera-icon",
+                      events:{
+                          click: "scan"
+                      }
+                  },
                 ],
             },
             DDV.Elements.MainView,
@@ -85,6 +95,11 @@ const DocumentEditor: React.FC<DocumentEditorProps> = (props:DocumentEditorProps
     editViewer.current.on("back" as any,() => {
       if (props.onBack) {
         props.onBack();
+      }
+    });
+    editViewer.current.on("scan" as any,() => {
+      if (props.onScanRequired) {
+        props.onScanRequired();
       }
     });
     editViewer.current.openDocument(props.docUid);

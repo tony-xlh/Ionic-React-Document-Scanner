@@ -22,7 +22,8 @@ const Home: React.FC = () => {
   const perspectiveViewer = useRef<PerspectiveViewer|undefined>();
   const [scanning,setScanning] = useState(false);
   const [displayHeader,setDisplayHeader] = useState(true);
-  const [mode,setMode] = useState<"browse"|"edit"|"crop">("browse")
+  const stayInEditViewer = useRef(false);
+  const [mode,setMode] = useState<"browse"|"edit"|"crop">("browse");
   const doc = useRef<IDocument|undefined>();
   const groupUid = useRef("ID");
   useEffect(()=>{
@@ -90,9 +91,14 @@ const Home: React.FC = () => {
     }
   }
 
-  const returnToBrowseViewer = () => {
-    setDisplayHeader(true);
-    setMode("browse");
+  const returnToPrevious = (fromEditViewer?:boolean) => {
+    if (stayInEditViewer.current === false || fromEditViewer === true) {
+      setDisplayHeader(true);
+      setMode("browse");
+    } else {
+      setDisplayHeader(false);
+      setMode("edit");
+    }
   }
 
 
@@ -116,7 +122,11 @@ const Home: React.FC = () => {
               docUid={uid} 
               show={displayEditor} 
               groupUid={groupUid.current}
-              onBack={returnToBrowseViewer}>
+              onScanRequired={()=>{
+                stayInEditViewer.current = true;
+                startScanning();
+              }}
+              onBack={()=>{returnToPrevious(true)}}>
             </DocumentEditor>
           </div>
           <div className={"cropper fullscreen" + (displayCropper?"":" hidden")}>
@@ -124,7 +134,7 @@ const Home: React.FC = () => {
               docUid={uid}
               groupUid={groupUid.current}
               show={displayCropper} 
-              onBack={returnToBrowseViewer} 
+              onBack={returnToPrevious} 
               onInitialized={(viewer:PerspectiveViewer)=>{perspectiveViewer.current = viewer;}}>
             </DocumentCropper>
           </div>
@@ -146,6 +156,7 @@ const Home: React.FC = () => {
       if (detail.data.action === "download") {
         downloadAsPDF();
       }else{
+        stayInEditViewer.current = false;
         setDisplayHeader(false);
         setMode(detail.data.action);
       }
