@@ -4,6 +4,10 @@ Ionic React Document Scanner using [Dynamsoft Document Normalizer](https://www.d
 
 [Online demo](https://courageous-cactus-2758a1.netlify.app/)
 
+
+https://github.com/user-attachments/assets/5eb32c85-8b8c-46c3-bd40-e136f25d0a35
+
+
 ## How to run it
 
 Install Ionic according to its docs.
