@@ -1,6 +1,7 @@
 import React from 'react';
 import { DetectedQuadResultItem } from 'dynamsoft-document-normalizer'
 import './SVGOverlay.css';
+import { Capacitor } from '@capacitor/core';
 
 export interface OverlayProps {
   quad:DetectedQuadResultItem;
@@ -20,6 +21,7 @@ const SVGOverlay = (props:OverlayProps): React.ReactElement => {
   return (
     <svg 
       id="overlay"
+      className={Capacitor.isNativePlatform() ? "fixed" : "absolute"}
       preserveAspectRatio="xMidYMid slice"
       viewBox={props.viewBox}
       xmlns="<http://www.w3.org/2000/svg>">
